@@ -5,7 +5,7 @@ import {
   Plus, Check, ChevronRight, ChevronLeft, Facebook, Twitter, Instagram,
   Anchor, Settings, Briefcase, 
   Clock, Award, HardHat, Battery, Monitor, MessageCircle, Send, Layout, User,
-  Droplet, Wind, Wrench, Search, Globe
+  Droplet, Wind, Wrench // Removed unused 'Search' and 'Globe'
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { 
@@ -45,8 +45,8 @@ interface AppSettings {
   siteTitle: string;    
   faviconUrl: string;
   contactFormUrl: string;
-  metaDescription: string; // New SEO Field
-  metaKeywords: string;    // New SEO Field
+  metaDescription: string;
+  metaKeywords: string;
 }
 
 interface Product { id?: string; name: string; category: string; price: number; description: string; imageUrl: string; }
@@ -106,25 +106,21 @@ const sendMessage = async (data: {name: string, email: string, message: string},
   return true;
 };
 
-// SEO Helper
 const updateMetaTags = (settings: AppSettings) => {
   if (settings.siteTitle) document.title = settings.siteTitle;
   
-  // Favicon
   if (settings.faviconUrl) {
     let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
     if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
     link.href = settings.faviconUrl;
   }
 
-  // Description
   if (settings.metaDescription) {
     let meta = document.querySelector("meta[name='description']") as HTMLMetaElement;
     if (!meta) { meta = document.createElement('meta'); meta.name = 'description'; document.head.appendChild(meta); }
     meta.content = settings.metaDescription;
   }
 
-  // Keywords
   if (settings.metaKeywords) {
     let meta = document.querySelector("meta[name='keywords']") as HTMLMetaElement;
     if (!meta) { meta = document.createElement('meta'); meta.name = 'keywords'; document.head.appendChild(meta); }
@@ -136,7 +132,6 @@ const updateMetaTags = (settings: AppSettings) => {
 // 4. COMPONENTS
 // =================================================================
 
-// --- HERO SLIDER ---
 const HeroSlider = ({ setActiveTab, logoUrl, slides }: any) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const activeSlides = slides.length > 0 ? slides : DEFAULT_SLIDES;
@@ -176,20 +171,16 @@ const HeroSlider = ({ setActiveTab, logoUrl, slides }: any) => {
   );
 };
 
-// --- SERVICES CAROUSEL (NEW) ---
 const ServicesCarousel = () => {
-  const [scrollPos, setScrollPos] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Auto scroll
   useEffect(() => {
     const scroll = () => {
       if (containerRef.current) {
         const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
         const isEnd = scrollLeft + clientWidth >= scrollWidth - 10;
-        const newPos = isEnd ? 0 : scrollLeft + 320; // 320px card width
+        const newPos = isEnd ? 0 : scrollLeft + 320; 
         containerRef.current.scrollTo({ left: newPos, behavior: 'smooth' });
-        setScrollPos(newPos);
       }
     };
     const timer = setInterval(scroll, 4000);
@@ -203,28 +194,16 @@ const ServicesCarousel = () => {
         <div className="w-20 h-1.5 bg-orange-600 mx-auto rounded-full"></div>
         <p className="text-slate-500 mt-4 max-w-2xl mx-auto">Comprehensive engineering solutions tailored to your needs.</p>
       </div>
-      
-      {/* Carousel Container */}
       <div className="relative max-w-[1920px] mx-auto">
-        <div 
-          ref={containerRef}
-          className="flex gap-6 overflow-x-auto pb-12 px-4 md:px-12 snap-x snap-mandatory scrollbar-hide"
-          style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none' }}
-        >
+        <div ref={containerRef} className="flex gap-6 overflow-x-auto pb-12 px-4 md:px-12 snap-x snap-mandatory scrollbar-hide" style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none' }}>
           {SERVICES_LIST.map((service, idx) => (
-            <div 
-              key={idx} 
-              className="flex-none w-80 md:w-96 bg-slate-50 border border-slate-100 p-8 rounded-2xl snap-center hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group cursor-default"
-            >
-              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-6 text-orange-600 shadow-md group-hover:bg-orange-600 group-hover:text-white transition-colors">
-                <service.icon className="w-8 h-8" />
-              </div>
+            <div key={idx} className="flex-none w-80 md:w-96 bg-slate-50 border border-slate-100 p-8 rounded-2xl snap-center hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group cursor-default">
+              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-6 text-orange-600 shadow-md group-hover:bg-orange-600 group-hover:text-white transition-colors"><service.icon className="w-8 h-8" /></div>
               <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-orange-600 transition-colors">{service.title}</h3>
               <p className="text-slate-600 leading-relaxed text-sm">{service.desc}</p>
             </div>
           ))}
         </div>
-        {/* Gradients to fade edges */}
         <div className="absolute top-0 bottom-0 left-0 w-12 md:w-32 bg-gradient-to-r from-white to-transparent pointer-events-none"></div>
         <div className="absolute top-0 bottom-0 right-0 w-12 md:w-32 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
       </div>
