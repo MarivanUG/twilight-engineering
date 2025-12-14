@@ -5,7 +5,7 @@ import {
   Plus, Check, ChevronRight, ChevronLeft, Facebook, Twitter, Instagram,
   Anchor, Settings, Briefcase, 
   Clock, Award, HardHat, Battery, Monitor, MessageCircle, Send, Layout, User,
-  Droplet, Wind, Wrench, Globe
+  Droplet, Wind, Wrench // FIX: Removed unused 'Globe' import
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { 
@@ -106,7 +106,7 @@ const HeroSlider = ({ setActiveTab, logoUrl, slides }: any) => {
   const activeSlides = slides.length > 0 ? slides : DEFAULT_SLIDES;
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentSlide((prev) => (prev + 1) % activeSlides.length), 6000); 
+    const timer = setInterval(() => setCurrentSlide((prev: number) => (prev + 1) % activeSlides.length), 6000); 
     return () => clearInterval(timer);
   }, [activeSlides.length]);
 
