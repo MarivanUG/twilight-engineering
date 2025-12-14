@@ -5,8 +5,7 @@ import {
   Plus, Check, ChevronRight, ChevronLeft, Facebook, Twitter, Instagram,
   Anchor, Settings, Briefcase, 
   Clock, Award, HardHat, Battery, Monitor, MessageCircle, Send, Layout, User,
-  // FIX: Added missing icons causing the crash
-  Droplet, Wind, Wrench
+  Droplet, Wind, Wrench, Globe
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { 
@@ -32,7 +31,7 @@ const app = initializeApp(userFirebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const APP_COLLECTION_ID = 'twilight-production-v6'; 
+const APP_COLLECTION_ID = 'twilight-production-v7'; 
 
 // =================================================================
 // 2. DEFAULT DATA 
@@ -41,21 +40,24 @@ const APP_COLLECTION_ID = 'twilight-production-v6';
 const DEFAULT_SLIDES = [
   {
     id: 'd1',
-    imageUrl: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1920&q=80",
+    // High-quality Power Line Image
+    imageUrl: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=1920&auto=format&fit=crop",
     title: "POWERING THE NATION",
     subtitle: "Specialists in High Voltage Power Line Construction & Distribution.",
     cta: "Our Services"
   },
   {
     id: 'd2',
-    imageUrl: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1920&q=80",
+    // High-quality Solar Panel Image
+    imageUrl: "https://images.unsplash.com/photo-1509391366360-2e959784a276?q=80&w=1920&auto=format&fit=crop",
     title: "SUSTAINABLE ENERGY",
     subtitle: "Expert design and installation of Industrial & Domestic Solar Systems.",
     cta: "View Projects"
   },
   {
     id: 'd3',
-    imageUrl: "https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&w=1920&q=80",
+    // High-quality Tech/Security Image
+    imageUrl: "https://images.unsplash.com/photo-1557597774-9d273605dfa9?q=80&w=1920&auto=format&fit=crop",
     title: "ADVANCED SECURITY",
     subtitle: "State-of-the-art CCTV, Access Control, and Surveillance Solutions.",
     cta: "Contact Us"
@@ -132,7 +134,14 @@ interface Product { id?: string; name: string; category: string; price: number; 
 interface Project { id?: string; title: string; client: string; description: string; imageUrl: string; stats: string[]; }
 interface Slide { id?: string; title: string; subtitle: string; imageUrl: string; cta: string; }
 interface CartItem extends Product { quantity: number; id: string; }
-interface AppSettings { logoUrl: string; adminPin: string; companyPhone: string; companyEmail: string; }
+interface AppSettings { 
+  logoUrl: string; 
+  adminPin: string; 
+  companyPhone: string; 
+  companyEmail: string;
+  siteTitle: string;    // New Field
+  faviconUrl: string;   // New Field
+}
 interface Message { id: string; name: string; email: string; text: string; createdAt: any; read: boolean; }
 
 // =================================================================
@@ -158,6 +167,7 @@ const HeroSlider = ({ setActiveTab, logoUrl, slides }: { setActiveTab: (tab: str
     <div className="relative bg-slate-900 text-white min-h-[90vh] flex items-center justify-center overflow-hidden">
       {activeSlides.map((slide, index) => (
         <div key={slide.id || index} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
+          {/* Ensure background image covers and is centered */}
           <div className="absolute inset-0 bg-cover bg-center transition-transform duration-[10000ms] ease-linear scale-110" 
                style={{ backgroundImage: `url('${slide.imageUrl}')`, transform: index === currentSlide ? 'scale(100)' : 'scale(110)' }}></div>
           <div className="absolute inset-0 bg-slate-900/70"></div>
@@ -621,6 +631,8 @@ const AdminContent = ({ products, projects, slides, messages, settings, addProdu
           <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
             <h3 className="text-xl font-bold mb-6 flex items-center text-slate-900"><Settings className="w-5 h-5 mr-2 text-orange-600" /> General Settings</h3>
             <form onSubmit={updateSettings} className="space-y-6">
+              <div><label className="block text-sm font-bold text-slate-700 mb-2">Website Title</label><input name="siteTitle" type="text" defaultValue={settings.siteTitle} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg outline-none" placeholder="Twilight Engineering" /></div>
+              <div><label className="block text-sm font-bold text-slate-700 mb-2">Favicon URL (Icon)</label><input name="faviconUrl" type="url" defaultValue={settings.faviconUrl} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg outline-none" placeholder="https://..." /></div>
               <div><label className="block text-sm font-bold text-slate-700 mb-2">Company Logo URL</label><input name="logoUrl" type="url" defaultValue={settings.logoUrl} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg outline-none" placeholder="https://..." /></div>
               <div><label className="block text-sm font-bold text-slate-700 mb-2">Admin PIN</label><input name="adminPin" type="text" defaultValue={settings.adminPin} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg outline-none font-mono tracking-widest" maxLength={4} /></div>
               <button className="w-full bg-orange-600 text-white py-4 rounded-xl font-bold hover:bg-orange-700 transition shadow-lg">Save Settings</button>
@@ -673,9 +685,23 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [settings, setSettings] = useState<AppSettings>({ logoUrl: '', adminPin: '1234', companyPhone: '+256773505795', companyEmail: 'info@twilighteng.com' });
+  const [settings, setSettings] = useState<AppSettings>({ logoUrl: '', adminPin: '1234', companyPhone: '+256773505795', companyEmail: 'info@twilighteng.com', siteTitle: 'Twilight Engineering', faviconUrl: '' });
 
   const cartItemCount = useMemo(() => cart.reduce((a, b) => a + b.quantity, 0), [cart]);
+
+  // --- DYNAMIC TITLE & FAVICON EFFECT ---
+  useEffect(() => {
+    if (settings.siteTitle) document.title = settings.siteTitle;
+    if (settings.faviconUrl) {
+      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = settings.faviconUrl;
+    }
+  }, [settings]);
 
   useEffect(() => { signInAnonymously(auth); onAuthStateChanged(auth, (u) => setUser(u)); }, []);
 
@@ -703,7 +729,7 @@ export default function App() {
   const addProject = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'projects'), { title: fd.get('title'), client: fd.get('client'), description: fd.get('description'), imageUrl: fd.get('imageUrl'), stats: (fd.get('stats') as string).split(',').map(s => s.trim()), createdAt: serverTimestamp() }); (e.target as HTMLFormElement).reset(); alert("Project Added"); };
   const addSlide = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), { title: fd.get('title'), subtitle: fd.get('subtitle'), cta: fd.get('cta'), imageUrl: fd.get('imageUrl'), createdAt: serverTimestamp() }); (e.target as HTMLFormElement).reset(); alert("Slide Added"); };
   
-  const updateSettings = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await setDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', 'settings'), { logoUrl: fd.get('logoUrl'), adminPin: fd.get('adminPin'), companyPhone: '+256773505795' }, { merge: true }); alert("Settings Saved"); };
+  const updateSettings = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await setDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', 'settings'), { logoUrl: fd.get('logoUrl'), adminPin: fd.get('adminPin'), companyPhone: '+256773505795', siteTitle: fd.get('siteTitle'), faviconUrl: fd.get('faviconUrl') }, { merge: true }); alert("Settings Saved"); };
   const loadDemoData = async () => { if(!confirm("Load demo data?")) return; try { await Promise.all([...DEFAULT_PRODUCTS.map(p => addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'products'), {...p, createdAt: serverTimestamp()})), ...DEFAULT_PROJECTS.map(p => addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'projects'), {...p, createdAt: serverTimestamp()})), ...DEFAULT_SLIDES.map(s => addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), {...s, createdAt: serverTimestamp()}))]); alert("Data loaded!"); } catch(e) { console.error(e); } };
 
   const deleteItem = async (col: string, id: string) => { if(confirm("Delete item?")) await deleteDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', col, id)); };
