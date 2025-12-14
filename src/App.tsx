@@ -5,7 +5,7 @@ import {
   Plus, Check, ChevronRight, ChevronLeft, Facebook, Twitter, Instagram,
   Anchor, Settings, Briefcase, 
   Clock, Award, HardHat, Battery, Monitor, MessageCircle, Send, Layout, User,
-  Droplet, Wind, Wrench, Building2, ExternalLink, Target, ShieldCheck
+  Droplet, Wind, Wrench, Building2, ExternalLink, Shield
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { 
@@ -39,7 +39,7 @@ const APP_COLLECTION_ID = 'twilight-production-v8';
 
 interface AppSettings { 
   logoUrl: string; 
-  footerLogoUrl: string; 
+  footerLogoUrl: string;
   adminPin: string; 
   companyPhone: string; 
   companyEmail: string;
@@ -92,12 +92,16 @@ const DEFAULT_PRODUCTS = [
 // 3. UTILS & HELPERS
 // =================================================================
 
-// NEW: Helper to ensure path is correct for local files
+// Helper to ensure path is correct for local files and handles spaces
 const resolveImagePath = (url: string) => {
-  if (!url) return '/logo.png'; // Default
+  if (!url) return '/logo.svg'; // Default to the SVG requested
   if (url.startsWith('http') || url.startsWith('data:')) return url; // External or Base64
-  // If user typed "logo.svg", convert to "/logo.svg"
-  return url.startsWith('/') ? url : `/${url}`;
+  
+  let cleanUrl = url.trim();
+  if (!cleanUrl.startsWith('/')) {
+    cleanUrl = '/' + cleanUrl;
+  }
+  return cleanUrl;
 };
 
 const sendMessage = async (data: {name: string, email: string, message: string}, endpoint: string) => {
@@ -123,7 +127,7 @@ const sendMessage = async (data: {name: string, email: string, message: string},
 const updateMetaTags = (settings: AppSettings) => {
   if (settings.siteTitle) document.title = settings.siteTitle;
   
-  const iconHref = resolveImagePath(settings.faviconUrl);
+  const iconHref = resolveImagePath(settings.faviconUrl || '/favicon.png');
   let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
   if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
   link.href = iconHref;
@@ -362,7 +366,7 @@ const AboutContent = () => (
         <h2 className="text-4xl font-bold text-slate-900 mb-6">Who We Are</h2>
         <div className="w-24 h-1.5 bg-orange-600 mb-8 rounded-full"></div>
         <div className="text-slate-600 text-lg leading-relaxed space-y-4">
-          <p><strong>Twilight Engineering Company Limited (TECL)</strong> is the avenue for new evolving engineering solutions that the world needs today. Incorporated in 2019, we have since grown our capacities in handling large-scale projects including power line construction, CCTV IP camera installations, domestic wiring, and solar sizing and installations.</p>
+          <p><strong>Twilight Engineering Company Limited (TECL)</strong> is a premier engineering firm incorporated in 2019. We have grown our capacity to handle large-scale projects ranging from power line construction to advanced security system installations.</p>
           <p>Development and maintenance of low, medium, and high voltage power distribution/transmission lines is our most recognized technical business. Our success is attributed to the dedication of our highly skilled team, which is our main asset.</p>
         </div>
       </div>
@@ -383,11 +387,11 @@ const AboutContent = () => (
       <h3 className="text-3xl font-bold text-center mb-12 text-slate-900">Our Core Values</h3>
       <div className="grid md:grid-cols-3 gap-8">
         {[
-          { title: "Accountability", icon: ShieldCheck, desc: "We practice transparency in all our dealings." },
+          { title: "Accountability", icon: Shield, desc: "We practice transparency in all our dealings." },
           { title: "Quality", icon: Check, desc: "We ensure high standards and excellence in every project." },
           { title: "Timely Delivery", icon: Clock, desc: "We respect timelines and deliver projects on schedule." },
           { title: "Integrity", icon: Lock, desc: "We uphold honesty and strong moral principles." },
-          { title: "Skill Development", icon: Target, desc: "We foster talent and skill growth for our team." },
+          { title: "Skill Development", icon: Award, desc: "We foster talent and skill growth for our team." },
           { title: "Safety (EHS)", icon: HardHat, desc: "Environmental Health & Safety is a priority for all stakeholders." }
         ].map((val, i) => (
            <div key={i} className="bg-slate-50 p-6 rounded-xl border border-slate-100 hover:shadow-lg transition text-center group">
@@ -456,6 +460,28 @@ const CartDrawer = ({ cart, removeFromCart, setIsCartOpen }: any) => {
 // --- ADMIN ---
 const AdminContent = ({ products, projects, slides, messages, settings, addProduct, deleteProduct, addProject, deleteProject, addSlide, deleteSlide, deleteMessage, updateSettings, loadDemoData, setIsAdmin }: any) => {
   const [adminTab, setAdminTab] = useState('store'); 
+  // FIX: Using local state for the form so typing works immediately without waiting for DB sync
+  const [formSettings, setFormSettings] = useState<AppSettings>(settings);
+  const [saveStatus, setSaveStatus] = useState('Save Settings');
+
+  // Sync if settings change externally
+  useEffect(() => {
+    setFormSettings(settings);
+  }, [settings]);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaveStatus('Saving...');
+    await updateSettings(formSettings);
+    setSaveStatus('Saved!');
+    setTimeout(() => setSaveStatus('Save Settings'), 2000);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormSettings(prev => ({ ...prev, [name]: value }));
+  };
+
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 animate-fade-in">
       <div className="flex justify-between mb-8 pb-6 border-b"><h2>Admin Dashboard</h2><div className="flex gap-2">{['Store', 'Projects', 'Slides', 'Inbox', 'Settings'].map(t => <button key={t} onClick={() => setAdminTab(t.toLowerCase())} className={`px-4 py-2 rounded ${adminTab===t.toLowerCase()?'bg-orange-100':'bg-slate-50'}`}>{t}</button>)}<button onClick={() => setIsAdmin(false)} className="px-4 py-2 bg-red-50 text-red-600">Exit</button></div></div>
@@ -463,7 +489,7 @@ const AdminContent = ({ products, projects, slides, messages, settings, addProdu
       {adminTab === 'projects' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Project</h3><form onSubmit={addProject} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="client" placeholder="Client" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{projects.map((p:any) => <tr key={p.id}><td>{p.title}</td><td><button onClick={() => deleteProject(p.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
       {adminTab === 'slides' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Slide</h3><form onSubmit={addSlide} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="subtitle" placeholder="Subtitle" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{slides.map((s:any) => <tr key={s.id}><td>{s.title}</td><td><button onClick={() => deleteSlide(s.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
       {adminTab === 'inbox' && <div className="max-w-4xl mx-auto space-y-4">{messages.map((m:any) => <div key={m.id} className="p-4 border rounded"><div className="flex justify-between font-bold"><span>{m.name} ({m.email})</span><button onClick={() => deleteMessage(m.id)}><Trash2 className="w-4 h-4" /></button></div><p>{m.text}</p></div>)}</div>}
-      {adminTab === 'settings' && <div className="max-w-xl mx-auto"><form onSubmit={updateSettings} className="space-y-6 bg-white p-8 shadow-xl"><h3>Settings</h3><input key={settings.siteTitle} name="siteTitle" defaultValue={settings.siteTitle} placeholder="Site Title" className="w-full p-3 border" /><input key={settings.faviconUrl} name="faviconUrl" defaultValue={settings.faviconUrl} placeholder="/favicon.png or https://..." className="w-full p-3 border" /><input key={settings.logoUrl} name="logoUrl" defaultValue={settings.logoUrl} placeholder="/logo.png or https://..." className="w-full p-3 border" /><input key={settings.footerLogoUrl} name="footerLogoUrl" defaultValue={settings.footerLogoUrl} placeholder="Footer Logo URL" className="w-full p-3 border bg-slate-50" /><input key={settings.contactFormUrl} name="contactFormUrl" defaultValue={settings.contactFormUrl} placeholder="Contact Form Endpoint (Formspree URL)" className="w-full p-3 border font-mono bg-slate-50" /><p className="text-xs text-slate-500">Sign up at formspree.io to get a URL for email notifications.</p><input key={settings.adminPin} name="adminPin" defaultValue={settings.adminPin} placeholder="Admin PIN" className="w-full p-3 border" /><button className="w-full bg-orange-600 text-white py-3 font-bold">Save Settings</button></form><br/><button onClick={loadDemoData} className="w-full bg-slate-200 py-3">Load Demo Data</button></div>}
+      {adminTab === 'settings' && <div className="max-w-xl mx-auto"><form onSubmit={handleSave} className="space-y-6 bg-white p-8 shadow-xl"><h3>Settings</h3><input name="siteTitle" value={formSettings.siteTitle} onChange={handleChange} placeholder="Site Title" className="w-full p-3 border" /><input name="faviconUrl" value={formSettings.faviconUrl} onChange={handleChange} placeholder="/favicon.png or https://..." className="w-full p-3 border" /><input name="logoUrl" value={formSettings.logoUrl} onChange={handleChange} placeholder="/logo.png or https://..." className="w-full p-3 border" /><input name="footerLogoUrl" value={formSettings.footerLogoUrl} onChange={handleChange} placeholder="Footer Logo URL" className="w-full p-3 border bg-slate-50" /><input name="contactFormUrl" value={formSettings.contactFormUrl} onChange={handleChange} placeholder="Contact Form Endpoint (Formspree URL)" className="w-full p-3 border font-mono bg-slate-50" /><p className="text-xs text-slate-500">Sign up at formspree.io to get a URL for email notifications.</p><input name="adminPin" value={formSettings.adminPin} onChange={handleChange} placeholder="Admin PIN" className="w-full p-3 border" /><button className={`w-full text-white py-3 font-bold ${saveStatus === 'Saved!' ? 'bg-green-600' : 'bg-orange-600'}`}>{saveStatus}</button></form><br/><button onClick={loadDemoData} className="w-full bg-slate-200 py-3">Load Demo Data</button></div>}
     </div>
   );
 };
@@ -490,8 +516,8 @@ export default function App() {
   
   // FIX: Default settings now include footerLogoUrl
   const [settings, setSettings] = useState<AppSettings>({ 
-    logoUrl: '/logo.png', 
-    footerLogoUrl: '', // Default empty, will fallback to logoUrl
+    logoUrl: '/logo.svg', 
+    footerLogoUrl: '/footer.svg', // Default empty, will fallback to logoUrl
     adminPin: '1234', 
     companyPhone: '+256773505795', 
     companyEmail: 'info@twilighteng.com', 
@@ -552,7 +578,12 @@ export default function App() {
   const addProject = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'projects'), { title: fd.get('title'), client: fd.get('client'), description: fd.get('description'), imageUrl: fd.get('imageUrl'), stats: (fd.get('stats') as string).split(','), createdAt: serverTimestamp() }); (e.target as HTMLFormElement).reset(); alert("Added"); };
   const addSlide = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), { title: fd.get('title'), subtitle: fd.get('subtitle'), cta: fd.get('cta'), imageUrl: fd.get('imageUrl'), createdAt: serverTimestamp() }); (e.target as HTMLFormElement).reset(); alert("Added"); };
   const deleteItem = async (col: string, id: string) => { if(confirm("Delete?")) await deleteDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', col, id)); };
-  const updateSettings = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await setDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', 'settings'), { logoUrl: fd.get('logoUrl'), footerLogoUrl: fd.get('footerLogoUrl'), adminPin: fd.get('adminPin'), companyPhone: '+256773505795', siteTitle: fd.get('siteTitle'), faviconUrl: fd.get('faviconUrl'), contactFormUrl: fd.get('contactFormUrl'), metaDescription: fd.get('metaDescription'), metaKeywords: fd.get('metaKeywords') }, { merge: true }); alert("Saved"); };
+  
+  // FIX: Updated updateSettings to accept the settings object directly from state
+  const updateSettings = async (newSettings: AppSettings) => { 
+    await setDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', 'settings'), newSettings, { merge: true });
+  };
+
   const loadDemoData = async () => { if(!confirm("Load demo?")) return; await Promise.all([...DEFAULT_PRODUCTS.map(p => addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'products'), {...p, createdAt: serverTimestamp()})), ...DEFAULT_PROJECTS.map(p => addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'projects'), {...p, createdAt: serverTimestamp()})), ...DEFAULT_SLIDES.map(s => addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), {...s, createdAt: serverTimestamp()}))]); alert("Loaded!"); };
 
   const addToCart = (p: Product) => { const pId = p.id || 't-'+Math.random(); setCart(prev => { const ex = prev.find(i => i.id === pId); return ex ? prev.map(i => i.id === pId ? {...i, quantity: i.quantity + 1} : i) : [...prev, {...p, quantity: 1, id: pId}]; }); setIsCartOpen(true); };
