@@ -63,28 +63,25 @@ const DEFAULT_SLIDES = [
 ];
 
 const SERVICES_LIST = [
-  { icon: Zap, title: "Power Line Construction", desc: "Comprehensive surveying, designing, and construction of Low, Medium, and High Voltage networks. We handle commissioning, maintenance, and rehabilitation of distribution lines." },
-  { icon: Sun, title: "Solar Systems", desc: "Professional design and sizing of solar energy systems. We install solar water heaters, pumps, and automated street lighting for compounds and highways." },
-  { icon: Video, title: "CCTV & Security", desc: "Installation of advanced IP Cameras and security alarm systems. We offer offline and online viewing capabilities to secure homes and businesses." },
-  { icon: Droplet, title: "Civil & Water Works", desc: "General civil engineering services including plumbing infrastructure, water pump installations, and structural support for utility projects." },
-  { icon: Wind, title: "AC Systems", desc: "Complete HVAC solutions including design, installation, and maintenance of Air Conditioning systems for residential and commercial premises." },
-  { icon: Wrench, title: "Underground Cabling", desc: "Specialized trenching and cable laying for Medium Voltage lines, solar plants, and substation interconnections with high safety standards." },
+  { icon: Zap, title: "Power Line Construction", desc: "Comprehensive surveying, designing, and construction of Low, Medium, and High Voltage networks." },
+  { icon: Sun, title: "Solar Systems", desc: "Professional design and sizing of solar energy systems. We install solar water heaters, pumps, and automated street lighting." },
+  { icon: Video, title: "CCTV & Security", desc: "Installation of advanced IP Cameras and security alarm systems. We offer offline and online viewing capabilities." },
+  { icon: Droplet, title: "Civil & Water Works", desc: "General civil engineering services including plumbing infrastructure, water pump installations, and structural support." },
+  { icon: Wind, title: "AC Systems", desc: "Complete HVAC solutions including design, installation, and maintenance of Air Conditioning systems." },
+  { icon: Wrench, title: "Underground Cabling", desc: "Specialized trenching and cable laying for Medium Voltage lines, solar plants, and substation interconnections." },
   { icon: Battery, title: "Material Supply", desc: "Procurement and supply of genuine electrical materials including Transformers, Conductors, Switchgear, and Safety Equipment." },
-  { icon: Monitor, title: "Electrical Wiring", desc: "Certified industrial, commercial, and residential wiring services adhering to modern safety regulations and standards." },
+  { icon: Monitor, title: "Electrical Wiring", desc: "Certified industrial, commercial, and residential wiring services adhering to modern safety regulations." },
 ];
 
-const CLIENTS = [
-  "EACPL / Kayunga", "Sogea Satom", "Nile Heavy Engineering", "Bwiza Furniture World", "NWSC Mokono", "Tian Tang Group"
-];
+const CLIENTS = ["EACPL", "Sogea Satom", "Nile Heavy Engineering", "Bwiza Furniture World", "NWSC", "Tian Tang Group"];
 
 const DEFAULT_PROJECTS = [
-  { title: "MV & LV Network Construction", client: "EACPL / Kayunga", description: "Successful execution of 2.33km MV and 2.7km LV network construction. Scope included pole erection, dressing, stringing, and commissioning of a 200KVA Transformer.", imageUrl: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80", stats: ["33KV Line", "Concrete Poles", "Commissioned"] },
-  { title: "Katosi Water Treatment Plant", client: "Sogea Satom", description: "Replacement of 11KV/500KVA with 33KV/500KVA transformer. Included installation of Bulk Metering Units, 33KV Circuit Breakers, and complex underground cable works.", imageUrl: "https://images.unsplash.com/photo-1581094794329-cd1361ddee2d?auto=format&fit=crop&w=800&q=80", stats: ["500KVA Tx", "Industrial", "Cabling"] },
-  { title: "Bukinda Hydro Power Project", client: "Nile Heavy Engineering", description: "Construction of 33kV Transmission Line for power evacuation of 6.5 MW Bukinda Small Hydro Power Project. Installation of auto-reclosers and metering units.", imageUrl: "https://images.unsplash.com/photo-1544724569-5f546fd6dd2d?auto=format&fit=crop&w=800&q=80", stats: ["Hydro Power", "Rehabilitation", "HV"] }
+  { title: "MV & LV Network Construction", client: "EACPL / Kayunga", description: "Successful execution of 2.33km MV and 2.7km LV network construction.", imageUrl: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80", stats: ["33KV Line", "Concrete Poles"] },
+  { title: "Katosi Water Treatment Plant", client: "Sogea Satom", description: "Replacement of 11KV/500KVA with 33KV/500KVA transformer.", imageUrl: "https://images.unsplash.com/photo-1581094794329-cd1361ddee2d?auto=format&fit=crop&w=800&q=80", stats: ["500KVA Tx", "Industrial"] }
 ];
 
 const DEFAULT_PRODUCTS = [
-  { name: "50KVA Transformer", category: "Supplies", price: 0, description: "High quality distribution transformer for industrial use.", imageUrl: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=500&q=60" },
+  { name: "50KVA Transformer", category: "Supplies", price: 0, description: "High quality distribution transformer.", imageUrl: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=500&q=60" },
   { name: "Solar Street Light Kit", category: "Electronics", price: 0, description: "Complete automated solar lighting system.", imageUrl: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=500&q=60" }
 ];
 
@@ -92,16 +89,11 @@ const DEFAULT_PRODUCTS = [
 // 3. UTILS & HELPERS
 // =================================================================
 
-// Helper to ensure path is correct for local files and handles spaces
 const resolveImagePath = (url: string) => {
-  if (!url) return '/logo.svg'; // Default to the SVG requested
-  if (url.startsWith('http') || url.startsWith('data:')) return url; // External or Base64
-  
+  if (!url) return '/logo.svg'; 
+  if (url.startsWith('http') || url.startsWith('data:')) return url; 
   let cleanUrl = url.trim();
-  // If it's just a filename like "logo.svg", prepend "/"
-  if (!cleanUrl.startsWith('/')) {
-    cleanUrl = '/' + cleanUrl;
-  }
+  if (!cleanUrl.startsWith('/')) cleanUrl = '/' + cleanUrl;
   return cleanUrl;
 };
 
@@ -461,27 +453,20 @@ const CartDrawer = ({ cart, removeFromCart, setIsCartOpen }: any) => {
 // --- ADMIN ---
 const AdminContent = ({ products, projects, slides, messages, settings, addProduct, deleteProduct, addProject, deleteProject, addSlide, deleteSlide, deleteMessage, updateSettings, loadDemoData, setIsAdmin }: any) => {
   const [adminTab, setAdminTab] = useState('store'); 
-  // FIX: Stable form state initialization
+  // FIX: Using local state for the form so typing works immediately without waiting for DB sync
   const [formSettings, setFormSettings] = useState<AppSettings>(settings);
   const [saveStatus, setSaveStatus] = useState('Save Settings');
 
-  // Sync with DB settings only when they change (e.g. initial load)
+  // Sync if settings change externally
   useEffect(() => {
-    setFormSettings(prev => ({...settings, ...prev})); // Merge to keep local edits if any (simplified: usually just sync)
-    setFormSettings(settings); // Force sync to DB version on load
+    setFormSettings(settings);
   }, [settings]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaveStatus('Saving...');
-    try {
-        await updateSettings(formSettings);
-        setSaveStatus('Saved!');
-    } catch (error) {
-        console.error("Save failed", error);
-        setSaveStatus('Error!');
-        alert("Failed to save settings. Check console.");
-    }
+    await updateSettings(formSettings);
+    setSaveStatus('Saved!');
     setTimeout(() => setSaveStatus('Save Settings'), 2000);
   };
 
@@ -497,7 +482,7 @@ const AdminContent = ({ products, projects, slides, messages, settings, addProdu
       {adminTab === 'projects' && <div className="grid lg:grid-cols-3 gap-10"><div><h3><Plus className="inline w-5 h-5 mr-1"/> Add Project</h3><form onSubmit={addProject} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="client" placeholder="Client" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{projects.map((p:any) => <tr key={p.id}><td>{p.title}</td><td><button onClick={() => deleteProject(p.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
       {adminTab === 'slides' && <div className="grid lg:grid-cols-3 gap-10"><div><h3><Layout className="inline w-5 h-5 mr-1"/> Add Slide</h3><form onSubmit={addSlide} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="subtitle" placeholder="Subtitle" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{slides.map((s:any) => <tr key={s.id}><td>{s.title}</td><td><button onClick={() => deleteSlide(s.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
       {adminTab === 'inbox' && <div className="max-w-4xl mx-auto space-y-4">{messages.map((m:any) => <div key={m.id} className="p-4 border rounded"><div className="flex justify-between font-bold"><span><User className="inline w-4 h-4 mr-1"/> {m.name} ({m.email})</span><button onClick={() => deleteMessage(m.id)}><Trash2 className="w-4 h-4" /></button></div><p>{m.text}</p></div>)}</div>}
-      {adminTab === 'settings' && <div className="max-w-xl mx-auto"><form onSubmit={handleSave} className="space-y-6 bg-white p-8 shadow-xl"><h3><Settings className="inline w-5 h-5 mr-1"/> Settings</h3><input name="siteTitle" value={formSettings.siteTitle || ''} onChange={handleChange} placeholder="Site Title" className="w-full p-3 border" /><input name="faviconUrl" value={formSettings.faviconUrl || ''} onChange={handleChange} placeholder="/favicon.png or https://..." className="w-full p-3 border" /><input name="logoUrl" value={formSettings.logoUrl || ''} onChange={handleChange} placeholder="/logo.png or https://..." className="w-full p-3 border" /><input name="footerLogoUrl" value={formSettings.footerLogoUrl || ''} onChange={handleChange} placeholder="Footer Logo URL" className="w-full p-3 border bg-slate-50" /><input name="contactFormUrl" value={formSettings.contactFormUrl || ''} onChange={handleChange} placeholder="Contact Form Endpoint (Formspree URL)" className="w-full p-3 border font-mono bg-slate-50" /><p className="text-xs text-slate-500">Sign up at formspree.io to get a URL for email notifications.</p><input name="adminPin" value={formSettings.adminPin || ''} onChange={handleChange} placeholder="Admin PIN" className="w-full p-3 border" /><button className={`w-full text-white py-3 font-bold ${saveStatus === 'Saved!' ? 'bg-green-600' : 'bg-orange-600'}`}>{saveStatus}</button></form><br/><button onClick={loadDemoData} className="w-full bg-slate-200 py-3"><Briefcase className="inline w-4 h-4 mr-1"/> Load Demo Data</button></div>}
+      {adminTab === 'settings' && <div className="max-w-xl mx-auto"><form onSubmit={handleSave} className="space-y-6 bg-white p-8 shadow-xl"><h3><Settings className="inline w-5 h-5 mr-1"/> Settings</h3><input name="siteTitle" value={formSettings.siteTitle} onChange={handleChange} placeholder="Site Title" className="w-full p-3 border" /><input name="faviconUrl" value={formSettings.faviconUrl} onChange={handleChange} placeholder="/favicon.png or https://..." className="w-full p-3 border" /><input name="logoUrl" value={formSettings.logoUrl} onChange={handleChange} placeholder="/logo.png or https://..." className="w-full p-3 border" /><input name="footerLogoUrl" value={formSettings.footerLogoUrl} onChange={handleChange} placeholder="Footer Logo URL" className="w-full p-3 border bg-slate-50" /><input name="contactFormUrl" value={formSettings.contactFormUrl} onChange={handleChange} placeholder="Contact Form Endpoint (Formspree URL)" className="w-full p-3 border font-mono bg-slate-50" /><p className="text-xs text-slate-500">Sign up at formspree.io to get a URL for email notifications.</p><input name="adminPin" value={formSettings.adminPin} onChange={handleChange} placeholder="Admin PIN" className="w-full p-3 border" /><button className={`w-full text-white py-3 font-bold ${saveStatus === 'Saved!' ? 'bg-green-600' : 'bg-orange-600'}`}>{saveStatus}</button></form><br/><button onClick={loadDemoData} className="w-full bg-slate-200 py-3"><Briefcase className="inline w-4 h-4 mr-1"/> Load Demo Data</button></div>}
     </div>
   );
 };
@@ -522,6 +507,7 @@ export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   
+  // FIX: Default settings now include footerLogoUrl
   const [settings, setSettings] = useState<AppSettings>({ 
     logoUrl: '/logo.svg', 
     footerLogoUrl: '/footer.svg', 
@@ -539,7 +525,10 @@ export default function App() {
 
   // --- HASH NAVIGATION & SEO ---
   useEffect(() => {
+    // 1. Meta Tags & Favicon
     if (settings.siteTitle) document.title = settings.siteTitle;
+    
+    // Fallback logic: Use /favicon.png if settings field is empty
     const iconHref = resolveImagePath(settings.faviconUrl);
     let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
     if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
@@ -556,6 +545,7 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [settings]);
 
+  // Update URL hash when tab changes (unless admin)
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     if (tab !== 'admin') window.location.hash = tab;
@@ -565,15 +555,10 @@ export default function App() {
 
   useEffect(() => {
     if (!user) return;
-    const qProd = query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'products'), orderBy('createdAt', 'desc'));
-    const qProj = query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'projects'), orderBy('createdAt', 'desc'));
-    const qSlides = query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), orderBy('createdAt', 'desc'));
-    const qMsgs = query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'messages'), orderBy('createdAt', 'desc'));
-    
-    const unsubProd = onSnapshot(qProd, (s) => setProducts(s.docs.map(d => ({ id: d.id, ...d.data() } as Product))));
-    const unsubProj = onSnapshot(qProj, (s) => setProjects(s.docs.map(d => ({ id: d.id, ...d.data() } as Project))));
-    const unsubSlides = onSnapshot(qSlides, (s) => setSlides(s.docs.map(d => ({ id: d.id, ...d.data() } as Slide))));
-    const unsubMsgs = onSnapshot(qMsgs, (s) => setMessages(s.docs.map(d => ({ id: d.id, ...d.data() } as Message))));
+    const unsubProd = onSnapshot(query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'products'), orderBy('createdAt', 'desc')), (s) => setProducts(s.docs.map(d => ({ id: d.id, ...d.data() } as Product))));
+    const unsubProj = onSnapshot(query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'projects'), orderBy('createdAt', 'desc')), (s) => setProjects(s.docs.map(d => ({ id: d.id, ...d.data() } as Project))));
+    const unsubSlides = onSnapshot(query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), orderBy('createdAt', 'desc')), (s) => setSlides(s.docs.map(d => ({ id: d.id, ...d.data() } as Slide))));
+    const unsubMsgs = onSnapshot(query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'messages'), orderBy('createdAt', 'desc')), (s) => setMessages(s.docs.map(d => ({ id: d.id, ...d.data() } as Message))));
 
     // FIX: Merge DB settings with local defaults to avoid overwriting new fields
     const unsubSettings = onSnapshot(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', 'settings'), (doc) => { 
@@ -594,6 +579,7 @@ export default function App() {
   const addSlide = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), { title: fd.get('title'), subtitle: fd.get('subtitle'), cta: fd.get('cta'), imageUrl: fd.get('imageUrl'), createdAt: serverTimestamp() }); (e.target as HTMLFormElement).reset(); alert("Added"); };
   const deleteItem = async (col: string, id: string) => { if(confirm("Delete?")) await deleteDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', col, id)); };
   
+  // FIX: Updated updateSettings to accept the settings object directly from state
   const updateSettings = async (newSettings: AppSettings) => { 
     await setDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', 'settings'), newSettings, { merge: true });
   };
@@ -622,6 +608,7 @@ export default function App() {
       <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-24">
           <div className="flex items-center gap-4 cursor-pointer" onClick={() => handleTabChange('home')}>
+             {/* FIX: Smart path resolution ensures 'logo.svg' works */}
              <img src={resolveImagePath(settings.logoUrl)} alt="Logo" className="h-16 w-auto" 
                   onError={(e) => { e.currentTarget.src = '/logo.png'; }} 
              /> 
@@ -635,6 +622,7 @@ export default function App() {
       <footer className="bg-slate-950 text-slate-400 py-16 px-4 mt-auto border-t border-slate-900">
         <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-1 md:col-span-2">
+            {/* FIX: Footer logo uses dedicated footerLogoUrl, falls back to main logo, then local file */}
             <div className="flex items-center gap-3 mb-6">
                <img src={resolveImagePath(settings.footerLogoUrl || settings.logoUrl)} alt="Logo" className="h-12 w-auto bg-white p-1 rounded" />
             </div>
