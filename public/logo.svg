@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 250 80">
+  <!-- Generator: Adobe Illustrator 29.1.0, SVG Export Plug-In . SVG Version: 2.1.0 Build 142)  -->
+  <defs>
+    <style>
+      .st0, .st1 {
+        fill: #fa7a21;
+      }
+
+      .st1 {
+        font-family: Roboto-SemiBold, Roboto;
+        font-size: 25px;
+        font-weight: 600;
+      }
+
+      .st2 {
+        font-family: Montserrat-ExtraBold, Montserrat;
+        font-size: 30px;
+        font-weight: 700;
+      }
+
+      .st3 {
+        fill: none;
+        stroke: #fa7a21;
+        stroke-miterlimit: 10;
+        stroke-width: 3px;
+      }
+    </style>
+  </defs>
+  <g>
+    <text class="st2" transform="translate(83.24 34.5)"><tspan x="0" y="0">TWILIGHT</tspan></text>
+    <text class="st1" transform="translate(82.68 64.22)"><tspan x="0" y="0">ENGINEERING</tspan></text>
+  </g>
+  <g>
+    <g>
+      <path d="M42.72,31.16l10.24-20.52,21.49-.1-6.61,11.98h-13.78l-.15,41.33h-19.58l-6.2,5.58-.05-.15c1.91-3.05,3.72-6.16,5.61-9.23,5.68-9.2,11.58-18.27,17.21-27.5.27-.45.6-.92.77-1.41h-8.95Z"/>
+      <path class="st0" d="M40.03,10.65l.11.21c-1.21,3.29-2.25,6.63-3.37,9.95-.12.35-.18.5-.29.82-1.78,5.28-3.6,10.55-5.35,15.84l-.2-.1c.29.72-.57,1.77-.61,2.4,0,.12.05.35.15.35h7.98l-.2.56-.2-.15-.31.96.31-.15c-.58,1.79-1.26,3.58-1.9,5.36-.09.24-.19.52-.3.82-.7,1.93-1.44,3.85-2.07,5.81-.24.15-.2-.32-.3-.2-.16.18-.15.56-.21.73-.03.09-.17.07-.19.14-.04.15,0,.62-.11.85l.2-.2-2.03,5.89-.1-.41c-.12-.17-.48,1.22-.5,1.38-.04.3.29-.12.2.2-.19.68-.56,1.38-.71,2.08h-1.93V22.43s-.36.1-.36.1l-.09-.19c-3.18.07-6.4.16-9.45.08-.47-.01-1.03.18-1.14-.09-2.54.24-4.92-.17-7.42.15-.24.03-.94.09-.91-.15l-1.07.2,6.52-11.62c.07-.1.37-.26.45-.26h25.42Z"/>
+    </g>
+    <rect class="st3" x="6.05" y="5" width="70" height="70"/>
+  </g>
+</svg>

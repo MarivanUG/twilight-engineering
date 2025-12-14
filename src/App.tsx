@@ -5,7 +5,7 @@ import {
   Plus, Check, ChevronRight, ChevronLeft, Facebook, Twitter, Instagram,
   Anchor, Settings, Briefcase, 
   Clock, Award, HardHat, Battery, Monitor, MessageCircle, Send, Layout, User,
-  Droplet, Wind, Wrench, Building2, ExternalLink
+  Droplet, Wind, Wrench, Building2, ExternalLink, Target, ShieldCheck
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { 
@@ -39,6 +39,7 @@ const APP_COLLECTION_ID = 'twilight-production-v8';
 
 interface AppSettings { 
   logoUrl: string; 
+  footerLogoUrl: string; 
   adminPin: string; 
   companyPhone: string; 
   companyEmail: string;
@@ -56,20 +57,20 @@ interface CartItem extends Product { quantity: number; id: string; }
 interface Message { id: string; name: string; email: string; text: string; createdAt: any; read: boolean; }
 
 const DEFAULT_SLIDES = [
-  { id: 'd1', imageUrl: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=1920&auto=format&fit=crop", title: "POWERING THE NATION", subtitle: "Specialists in High Voltage Power Line Construction & Distribution.", cta: "Our Services" },
-  { id: 'd2', imageUrl: "https://images.unsplash.com/photo-1509391366360-2e959784a276?q=80&w=1920&auto=format&fit=crop", title: "SUSTAINABLE ENERGY", subtitle: "Expert design and installation of Industrial & Domestic Solar Systems.", cta: "View Projects" },
-  { id: 'd3', imageUrl: "https://images.unsplash.com/photo-1557597774-9d273605dfa9?q=80&w=1920&auto=format&fit=crop", title: "ADVANCED SECURITY", subtitle: "State-of-the-art CCTV, Access Control, and Surveillance Solutions.", cta: "Contact Us" }
+  { id: 'd1', imageUrl: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=1920&auto=format&fit=crop", title: "POWERING THE NATION", subtitle: "Specialists in High Voltage Power Line Construction, Maintenance, and Distribution Network Rehabilitation.", cta: "Our Services" },
+  { id: 'd2', imageUrl: "https://images.unsplash.com/photo-1509391366360-2e959784a276?q=80&w=1920&auto=format&fit=crop", title: "SUSTAINABLE ENERGY", subtitle: "Expert design, sizing, and installation of On-Grid and Off-Grid Solar Systems for industrial and domestic use.", cta: "View Projects" },
+  { id: 'd3', imageUrl: "https://images.unsplash.com/photo-1557597774-9d273605dfa9?q=80&w=1920&auto=format&fit=crop", title: "ADVANCED SECURITY", subtitle: "State-of-the-art CCTV IP Camera installations, Security Alarms, and Remote Surveillance Solutions.", cta: "Contact Us" }
 ];
 
 const SERVICES_LIST = [
-  { icon: Zap, title: "Power Line Construction", desc: "Surveying, designing, and construction of MV/HV networks and substations." },
-  { icon: Sun, title: "Solar Systems", desc: "Design and sizing of On-grid and Off-grid solar systems for home & industry." },
-  { icon: Video, title: "CCTV & Security", desc: "Installation of IP Cameras, alarms, and remote surveillance systems." },
-  { icon: Droplet, title: "Civil & Water Works", desc: "General civil engineering, plumbing, and water pump installations." },
-  { icon: Wind, title: "AC Systems", desc: "Design, installation, and maintenance of Air Conditioning systems." },
-  { icon: Wrench, title: "Underground Cabling", desc: "Specialized underground cable works for MV lines and factories." },
-  { icon: Battery, title: "Material Supply", desc: "Supply of all electrical materials, transformers and appliances." },
-  { icon: Monitor, title: "Electrical Wiring", desc: "Industrial, Commercial & Residential professional wiring services." },
+  { icon: Zap, title: "Power Line Construction", desc: "Comprehensive surveying, designing, and construction of Low, Medium, and High Voltage networks. We handle commissioning, maintenance, and rehabilitation of distribution lines." },
+  { icon: Sun, title: "Solar Systems", desc: "Professional design and sizing of solar energy systems. We install solar water heaters, pumps, and automated street lighting for compounds and highways." },
+  { icon: Video, title: "CCTV & Security", desc: "Installation of advanced IP Cameras and security alarm systems. We offer offline and online viewing capabilities to secure homes and businesses." },
+  { icon: Droplet, title: "Civil & Water Works", desc: "General civil engineering services including plumbing infrastructure, water pump installations, and structural support for utility projects." },
+  { icon: Wind, title: "AC Systems", desc: "Complete HVAC solutions including design, installation, and maintenance of Air Conditioning systems for residential and commercial premises." },
+  { icon: Wrench, title: "Underground Cabling", desc: "Specialized trenching and cable laying for Medium Voltage lines, solar plants, and substation interconnections with high safety standards." },
+  { icon: Battery, title: "Material Supply", desc: "Procurement and supply of genuine electrical materials including Transformers, Conductors, Switchgear, and Safety Equipment." },
+  { icon: Monitor, title: "Electrical Wiring", desc: "Certified industrial, commercial, and residential wiring services adhering to modern safety regulations and standards." },
 ];
 
 const CLIENTS = [
@@ -77,18 +78,27 @@ const CLIENTS = [
 ];
 
 const DEFAULT_PROJECTS = [
-  { title: "MV & LV Network Construction", client: "EACPL / Kayunga", description: "Construction, testing, and commissioning of 33KV Line on concrete structures.", imageUrl: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80", stats: ["33KV Line", "Concrete Poles"] },
-  { title: "Katosi Water Treatment Plant", client: "Sogea Satom", description: "Installation of 33KV/500KVA Transformer and Bulk Metering Units.", imageUrl: "https://images.unsplash.com/photo-1581094794329-cd1361ddee2d?auto=format&fit=crop&w=800&q=80", stats: ["500KVA Tx", "Industrial"] }
+  { title: "MV & LV Network Construction", client: "EACPL / Kayunga", description: "Successful execution of 2.33km MV and 2.7km LV network construction. Scope included pole erection, dressing, stringing, and commissioning of a 200KVA Transformer.", imageUrl: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80", stats: ["33KV Line", "Concrete Poles", "Commissioned"] },
+  { title: "Katosi Water Treatment Plant", client: "Sogea Satom", description: "Replacement of 11KV/500KVA with 33KV/500KVA transformer. Included installation of Bulk Metering Units, 33KV Circuit Breakers, and complex underground cable works.", imageUrl: "https://images.unsplash.com/photo-1581094794329-cd1361ddee2d?auto=format&fit=crop&w=800&q=80", stats: ["500KVA Tx", "Industrial", "Cabling"] },
+  { title: "Bukinda Hydro Power Project", client: "Nile Heavy Engineering", description: "Construction of 33kV Transmission Line for power evacuation of 6.5 MW Bukinda Small Hydro Power Project. Installation of auto-reclosers and metering units.", imageUrl: "https://images.unsplash.com/photo-1544724569-5f546fd6dd2d?auto=format&fit=crop&w=800&q=80", stats: ["Hydro Power", "Rehabilitation", "HV"] }
 ];
 
 const DEFAULT_PRODUCTS = [
-  { name: "50KVA Transformer", category: "Supplies", price: 0, description: "High quality distribution transformer.", imageUrl: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=500&q=60" },
+  { name: "50KVA Transformer", category: "Supplies", price: 0, description: "High quality distribution transformer for industrial use.", imageUrl: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=500&q=60" },
   { name: "Solar Street Light Kit", category: "Electronics", price: 0, description: "Complete automated solar lighting system.", imageUrl: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=500&q=60" }
 ];
 
 // =================================================================
 // 3. UTILS & HELPERS
 // =================================================================
+
+// NEW: Helper to ensure path is correct for local files
+const resolveImagePath = (url: string) => {
+  if (!url) return '/logo.png'; // Default
+  if (url.startsWith('http') || url.startsWith('data:')) return url; // External or Base64
+  // If user typed "logo.svg", convert to "/logo.svg"
+  return url.startsWith('/') ? url : `/${url}`;
+};
 
 const sendMessage = async (data: {name: string, email: string, message: string}, endpoint: string) => {
   try {
@@ -112,11 +122,12 @@ const sendMessage = async (data: {name: string, email: string, message: string},
 
 const updateMetaTags = (settings: AppSettings) => {
   if (settings.siteTitle) document.title = settings.siteTitle;
-  if (settings.faviconUrl) {
-    let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
-    if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
-    link.href = settings.faviconUrl;
-  }
+  
+  const iconHref = resolveImagePath(settings.faviconUrl);
+  let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+  if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+  link.href = iconHref;
+
   if (settings.metaDescription) {
     let meta = document.querySelector("meta[name='description']") as HTMLMetaElement;
     if (!meta) { meta = document.createElement('meta'); meta.name = 'description'; document.head.appendChild(meta); }
@@ -133,7 +144,7 @@ const updateMetaTags = (settings: AppSettings) => {
 // 4. COMPONENTS
 // =================================================================
 
-const HeroSlider = ({ setActiveTab, logoUrl, slides }: any) => {
+const HeroSlider = ({ setActiveTab, slides }: any) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const activeSlides = slides.length > 0 ? slides : DEFAULT_SLIDES;
 
@@ -154,10 +165,12 @@ const HeroSlider = ({ setActiveTab, logoUrl, slides }: any) => {
         </div>
       ))}
       <div className="relative z-20 max-w-7xl mx-auto px-4 text-center flex flex-col items-center">
-        {logoUrl && <img src={logoUrl} alt="Logo" className="w-24 h-auto mb-8 drop-shadow-2xl animate-fade-in-up" />}
         <div className="mb-6 inline-flex items-center gap-2 bg-orange-600/20 border border-orange-500/50 px-4 py-2 rounded-full text-orange-400 text-sm font-bold uppercase tracking-wider backdrop-blur-sm animate-fade-in-up"><Zap className="w-4 h-4" /> Creating New Ways</div>
-        <div className="h-48 md:h-64 flex flex-col items-center justify-center transition-all duration-500">
-            <h1 className="text-4xl md:text-7xl font-extrabold mb-6 tracking-tight leading-none animate-slide-in-right uppercase">{activeSlides[currentSlide].title}</h1>
+        <div className="flex flex-col items-center justify-center transition-all duration-500">
+            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-none animate-slide-in-right uppercase text-center">
+              TWILIGHT<br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">ENGINEERING</span>
+            </h1>
             <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-gray-300 font-light leading-relaxed animate-slide-in-left">{activeSlides[currentSlide].subtitle}</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up delay-200">
@@ -247,7 +260,9 @@ const ChatWidget = ({ settings }: { settings: AppSettings }) => {
         <div className="bg-white rounded-2xl shadow-2xl mb-4 w-80 sm:w-96 overflow-hidden border border-slate-100 animate-fade-in-up">
           <div className="bg-slate-900 p-4 flex justify-between items-center text-white">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-600 rounded-full flex items-center justify-center font-bold">TE</div>
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-slate-200 overflow-hidden">
+                <img src={resolveImagePath(settings.logoUrl)} alt="TE" className="w-full h-full object-cover" />
+              </div>
               <div><h4 className="font-bold text-sm">Twilight Support</h4><p className="text-xs text-slate-300">Online</p></div>
             </div>
             <button onClick={() => setIsOpen(false)} className="hover:bg-white/10 p-1 rounded"><X className="w-5 h-5" /></button>
@@ -343,8 +358,45 @@ const HomeContent = ({ setActiveTab, logoUrl, slides, settings }: any) => (
 const AboutContent = () => (
   <div className="max-w-7xl mx-auto py-20 px-4 animate-fade-in">
     <div className="grid md:grid-cols-2 gap-16 items-start mb-20">
-      <div><h2 className="text-4xl font-bold text-slate-900 mb-6">Who We Are</h2><div className="w-24 h-1.5 bg-orange-600 mb-8 rounded-full"></div><p className="text-slate-600 text-lg leading-relaxed"><strong>Twilight Engineering Company Limited (TECL)</strong> is a premier engineering firm incorporated in 2019. We have grown our capacity to handle large-scale projects ranging from power line construction to advanced security system installations.</p></div>
-      <div className="space-y-8"><div className="bg-white p-8 rounded-2xl shadow-xl border-l-4 border-orange-600"><h3 className="text-2xl font-bold mb-4 text-slate-900 flex items-center gap-3"><Anchor className="text-orange-600" /> Mission</h3><p className="text-slate-600">To provide overall customer satisfaction through provisioning of quality engineering solutions.</p></div></div>
+      <div>
+        <h2 className="text-4xl font-bold text-slate-900 mb-6">Who We Are</h2>
+        <div className="w-24 h-1.5 bg-orange-600 mb-8 rounded-full"></div>
+        <div className="text-slate-600 text-lg leading-relaxed space-y-4">
+          <p><strong>Twilight Engineering Company Limited (TECL)</strong> is the avenue for new evolving engineering solutions that the world needs today. Incorporated in 2019, we have since grown our capacities in handling large-scale projects including power line construction, CCTV IP camera installations, domestic wiring, and solar sizing and installations.</p>
+          <p>Development and maintenance of low, medium, and high voltage power distribution/transmission lines is our most recognized technical business. Our success is attributed to the dedication of our highly skilled team, which is our main asset.</p>
+        </div>
+      </div>
+      <div className="space-y-8">
+        <div className="bg-white p-8 rounded-2xl shadow-xl border-l-4 border-orange-600">
+          <h3 className="text-2xl font-bold mb-4 text-slate-900 flex items-center gap-3"><Anchor className="text-orange-600" /> Our Mission</h3>
+          <p className="text-slate-600">To provide overall customer satisfaction through provisioning of quality engineering solutions for all the services we offer. We adhere to and are committed to ensuring our employees' and all stakeholders' safety, ensuring the development of skills and talent for all parties.</p>
+        </div>
+        <div className="bg-slate-900 p-8 rounded-2xl shadow-xl border-l-4 border-orange-600 text-white">
+          <h3 className="text-2xl font-bold mb-4 flex items-center gap-3"><Sun className="text-orange-500" /> Our Vision</h3>
+          <p className="text-gray-300">To be the leading engineering solution provider most especially in power distribution and transmission networks in the whole region. We have developed a quality management program to assist in achieving our quality of service to our clients.</p>
+        </div>
+      </div>
+    </div>
+
+    {/* Core Values Section */}
+    <div className="mt-20">
+      <h3 className="text-3xl font-bold text-center mb-12 text-slate-900">Our Core Values</h3>
+      <div className="grid md:grid-cols-3 gap-8">
+        {[
+          { title: "Accountability", icon: ShieldCheck, desc: "We practice transparency in all our dealings." },
+          { title: "Quality", icon: Check, desc: "We ensure high standards and excellence in every project." },
+          { title: "Timely Delivery", icon: Clock, desc: "We respect timelines and deliver projects on schedule." },
+          { title: "Integrity", icon: Lock, desc: "We uphold honesty and strong moral principles." },
+          { title: "Skill Development", icon: Target, desc: "We foster talent and skill growth for our team." },
+          { title: "Safety (EHS)", icon: HardHat, desc: "Environmental Health & Safety is a priority for all stakeholders." }
+        ].map((val, i) => (
+           <div key={i} className="bg-slate-50 p-6 rounded-xl border border-slate-100 hover:shadow-lg transition text-center group">
+             <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition"><val.icon className="w-7 h-7" /></div>
+             <h4 className="font-bold text-lg mb-2">{val.title}</h4>
+             <p className="text-slate-500 text-sm">{val.desc}</p>
+           </div>
+        ))}
+      </div>
     </div>
   </div>
 );
@@ -352,10 +404,10 @@ const AboutContent = () => (
 const ServicesContent = () => (
   <div className="bg-slate-50 min-h-screen py-20 px-4 animate-fade-in">
     <div className="max-w-7xl mx-auto">
-      <div className="text-center mb-16"><h2 className="text-4xl font-bold text-slate-900 mb-4">Technical Services</h2></div>
+      <div className="text-center mb-16"><h2 className="text-4xl font-bold text-slate-900 mb-4">Technical Services</h2><p className="text-slate-600">Comprehensive Engineering Solutions</p></div>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {SERVICES_LIST.map((s, i) => (
-          <div key={i} className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition border border-slate-100"><div className="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center mb-6 text-orange-600"><s.icon className="w-7 h-7" /></div><h3 className="text-xl font-bold mb-3 text-slate-900">{s.title}</h3><p className="text-slate-600">{s.desc}</p></div>
+          <div key={i} className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition border border-slate-100"><div className="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center mb-6 text-orange-600"><s.icon className="w-7 h-7" /></div><h3 className="text-xl font-bold mb-3 text-slate-900">{s.title}</h3><p className="text-slate-600 leading-relaxed text-sm">{s.desc}</p></div>
         ))}
       </div>
     </div>
@@ -411,7 +463,7 @@ const AdminContent = ({ products, projects, slides, messages, settings, addProdu
       {adminTab === 'projects' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Project</h3><form onSubmit={addProject} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="client" placeholder="Client" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{projects.map((p:any) => <tr key={p.id}><td>{p.title}</td><td><button onClick={() => deleteProject(p.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
       {adminTab === 'slides' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Slide</h3><form onSubmit={addSlide} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="subtitle" placeholder="Subtitle" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{slides.map((s:any) => <tr key={s.id}><td>{s.title}</td><td><button onClick={() => deleteSlide(s.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
       {adminTab === 'inbox' && <div className="max-w-4xl mx-auto space-y-4">{messages.map((m:any) => <div key={m.id} className="p-4 border rounded"><div className="flex justify-between font-bold"><span>{m.name} ({m.email})</span><button onClick={() => deleteMessage(m.id)}><Trash2 className="w-4 h-4" /></button></div><p>{m.text}</p></div>)}</div>}
-      {adminTab === 'settings' && <div className="max-w-xl mx-auto"><form onSubmit={updateSettings} className="space-y-6 bg-white p-8 shadow-xl"><h3>Settings</h3><input name="siteTitle" defaultValue={settings.siteTitle} placeholder="Site Title" className="w-full p-3 border" /><input name="faviconUrl" defaultValue={settings.faviconUrl} placeholder="Favicon URL" className="w-full p-3 border" /><input name="logoUrl" defaultValue={settings.logoUrl} placeholder="Logo URL" className="w-full p-3 border" /><input name="contactFormUrl" defaultValue={settings.contactFormUrl} placeholder="Contact Form Endpoint (Formspree URL)" className="w-full p-3 border font-mono bg-slate-50" /><p className="text-xs text-slate-500">Sign up at formspree.io to get a URL for email notifications.</p><input name="adminPin" defaultValue={settings.adminPin} placeholder="Admin PIN" className="w-full p-3 border" /><button className="w-full bg-orange-600 text-white py-3 font-bold">Save Settings</button></form><br/><button onClick={loadDemoData} className="w-full bg-slate-200 py-3">Load Demo Data</button></div>}
+      {adminTab === 'settings' && <div className="max-w-xl mx-auto"><form onSubmit={updateSettings} className="space-y-6 bg-white p-8 shadow-xl"><h3>Settings</h3><input key={settings.siteTitle} name="siteTitle" defaultValue={settings.siteTitle} placeholder="Site Title" className="w-full p-3 border" /><input key={settings.faviconUrl} name="faviconUrl" defaultValue={settings.faviconUrl} placeholder="/favicon.png or https://..." className="w-full p-3 border" /><input key={settings.logoUrl} name="logoUrl" defaultValue={settings.logoUrl} placeholder="/logo.png or https://..." className="w-full p-3 border" /><input key={settings.footerLogoUrl} name="footerLogoUrl" defaultValue={settings.footerLogoUrl} placeholder="Footer Logo URL" className="w-full p-3 border bg-slate-50" /><input key={settings.contactFormUrl} name="contactFormUrl" defaultValue={settings.contactFormUrl} placeholder="Contact Form Endpoint (Formspree URL)" className="w-full p-3 border font-mono bg-slate-50" /><p className="text-xs text-slate-500">Sign up at formspree.io to get a URL for email notifications.</p><input key={settings.adminPin} name="adminPin" defaultValue={settings.adminPin} placeholder="Admin PIN" className="w-full p-3 border" /><button className="w-full bg-orange-600 text-white py-3 font-bold">Save Settings</button></form><br/><button onClick={loadDemoData} className="w-full bg-slate-200 py-3">Load Demo Data</button></div>}
     </div>
   );
 };
@@ -435,20 +487,34 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [settings, setSettings] = useState<AppSettings>({ logoUrl: '', adminPin: '1234', companyPhone: '+256773505795', companyEmail: 'info@twilighteng.com', siteTitle: 'Twilight Engineering', faviconUrl: '', contactFormUrl: '', metaDescription: '', metaKeywords: '' });
+  
+  // FIX: Default settings now include footerLogoUrl
+  const [settings, setSettings] = useState<AppSettings>({ 
+    logoUrl: '/logo.png', 
+    footerLogoUrl: '', // Default empty, will fallback to logoUrl
+    adminPin: '1234', 
+    companyPhone: '+256773505795', 
+    companyEmail: 'info@twilighteng.com', 
+    siteTitle: 'Twilight Engineering', 
+    faviconUrl: '/favicon.png', 
+    contactFormUrl: '', 
+    metaDescription: '', 
+    metaKeywords: '' 
+  });
 
   const cartItemCount = useMemo(() => cart.reduce((a, b) => a + b.quantity, 0), [cart]);
 
   // --- HASH NAVIGATION & SEO ---
   useEffect(() => {
-    // 1. Meta Tags
+    // 1. Meta Tags & Favicon
     if (settings.siteTitle) document.title = settings.siteTitle;
-    if (settings.faviconUrl) {
-      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
-      if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
-      link.href = settings.faviconUrl;
-    }
-    // 2. Hash Nav: Listen for hash changes
+    
+    // Fallback logic: Use /favicon.png if settings field is empty
+    const iconHref = resolveImagePath(settings.faviconUrl);
+    let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+    if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+    link.href = iconHref;
+
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
       if (hash && ['home', 'about', 'services', 'projects', 'store', 'contact'].includes(hash)) {
@@ -456,7 +522,6 @@ export default function App() {
       }
     };
     window.addEventListener('hashchange', handleHashChange);
-    // Initial check
     handleHashChange();
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [settings]);
@@ -487,7 +552,7 @@ export default function App() {
   const addProject = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'projects'), { title: fd.get('title'), client: fd.get('client'), description: fd.get('description'), imageUrl: fd.get('imageUrl'), stats: (fd.get('stats') as string).split(','), createdAt: serverTimestamp() }); (e.target as HTMLFormElement).reset(); alert("Added"); };
   const addSlide = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), { title: fd.get('title'), subtitle: fd.get('subtitle'), cta: fd.get('cta'), imageUrl: fd.get('imageUrl'), createdAt: serverTimestamp() }); (e.target as HTMLFormElement).reset(); alert("Added"); };
   const deleteItem = async (col: string, id: string) => { if(confirm("Delete?")) await deleteDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', col, id)); };
-  const updateSettings = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await setDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', 'settings'), { logoUrl: fd.get('logoUrl'), adminPin: fd.get('adminPin'), companyPhone: '+256773505795', siteTitle: fd.get('siteTitle'), faviconUrl: fd.get('faviconUrl'), contactFormUrl: fd.get('contactFormUrl'), metaDescription: fd.get('metaDescription'), metaKeywords: fd.get('metaKeywords') }, { merge: true }); alert("Saved"); };
+  const updateSettings = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await setDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', 'settings'), { logoUrl: fd.get('logoUrl'), footerLogoUrl: fd.get('footerLogoUrl'), adminPin: fd.get('adminPin'), companyPhone: '+256773505795', siteTitle: fd.get('siteTitle'), faviconUrl: fd.get('faviconUrl'), contactFormUrl: fd.get('contactFormUrl'), metaDescription: fd.get('metaDescription'), metaKeywords: fd.get('metaKeywords') }, { merge: true }); alert("Saved"); };
   const loadDemoData = async () => { if(!confirm("Load demo?")) return; await Promise.all([...DEFAULT_PRODUCTS.map(p => addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'products'), {...p, createdAt: serverTimestamp()})), ...DEFAULT_PROJECTS.map(p => addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'projects'), {...p, createdAt: serverTimestamp()})), ...DEFAULT_SLIDES.map(s => addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), {...s, createdAt: serverTimestamp()}))]); alert("Loaded!"); };
 
   const addToCart = (p: Product) => { const pId = p.id || 't-'+Math.random(); setCart(prev => { const ex = prev.find(i => i.id === pId); return ex ? prev.map(i => i.id === pId ? {...i, quantity: i.quantity + 1} : i) : [...prev, {...p, quantity: 1, id: pId}]; }); setIsCartOpen(true); };
@@ -512,8 +577,8 @@ export default function App() {
       <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-24">
           <div className="flex items-center gap-4 cursor-pointer" onClick={() => handleTabChange('home')}>
-             {settings.logoUrl ? <img src={settings.logoUrl} alt="Logo" className="h-12 w-auto" /> : <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center text-white font-black text-2xl">TE</div>}
-            <div className="hidden sm:block"><div className="font-black text-xl text-slate-900 leading-none">TWILIGHT</div><div className="font-bold text-sm text-orange-600 tracking-widest uppercase">Engineering</div></div>
+             {/* FIX: Smart path resolution ensures 'logo.svg' works */}
+             <img src={resolveImagePath(settings.logoUrl)} alt="Logo" className="h-16 w-auto" /> 
           </div>
           <div className="hidden lg:flex items-center gap-8">{['Home', 'About', 'Services', 'Store', 'Projects', 'Contact'].map(item => (<button key={item} onClick={() => handleTabChange(item.toLowerCase())} className={`text-sm font-bold uppercase tracking-wider relative py-2 group ${activeTab === item.toLowerCase() ? 'text-orange-600' : 'text-slate-500 hover:text-slate-900'}`}>{item}<span className={`absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 transform transition-transform ${activeTab === item.toLowerCase() ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`}></span></button>))}{isAdmin && <button onClick={() => handleTabChange('admin')} className="text-xs font-bold uppercase text-white bg-red-500 px-4 py-2 rounded-full hover:bg-red-600">Admin</button>}</div>
           <div className="lg:hidden flex items-center gap-4"><button onClick={() => setIsCartOpen(true)} className="p-2 relative"><ShoppingCart className="w-6 h-6" />{cartItemCount > 0 && <span className="absolute top-0 right-0 w-4 h-4 bg-orange-600 text-white text-[10px] flex items-center justify-center rounded-full font-bold">{cartItemCount}</span>}</button><button className="p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>{isMenuOpen ? <X /> : <Menu />}</button></div>
@@ -523,7 +588,13 @@ export default function App() {
       <main>{renderContent()}</main>
       <footer className="bg-slate-950 text-slate-400 py-16 px-4 mt-auto border-t border-slate-900">
         <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-12">
-          <div className="col-span-1 md:col-span-2"><div className="flex items-center gap-3 mb-6"><div className="w-10 h-10 bg-orange-600 rounded flex items-center justify-center text-white font-black text-xl">T</div><span className="text-2xl font-bold text-white">TWILIGHT</span></div><p className="mb-8 max-w-md text-slate-500">Your trusted partner for electrical and civil engineering solutions in Uganda.</p><div className="flex gap-4"><Facebook className="w-5 h-5" /><Twitter className="w-5 h-5" /><Instagram className="w-5 h-5" /></div></div>
+          <div className="col-span-1 md:col-span-2">
+            {/* FIX: Footer logo uses dedicated footerLogoUrl, falls back to main logo, then local file */}
+            <div className="flex items-center gap-3 mb-6">
+               <img src={resolveImagePath(settings.footerLogoUrl || settings.logoUrl)} alt="Logo" className="h-12 w-auto bg-white p-1 rounded" />
+            </div>
+            <p className="mb-8 max-w-md text-slate-500">Your trusted partner for electrical and civil engineering solutions in Uganda.</p><div className="flex gap-4"><Facebook className="w-5 h-5" /><Twitter className="w-5 h-5" /><Instagram className="w-5 h-5" /></div>
+          </div>
           <div><h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2"><MapPin className="w-4 h-4 text-orange-600" /> Location</h3><p className="text-sm">P.O Box 145784, Kawempe GPO,<br/>Kampala, Uganda<br/><br/><span className="text-orange-600 font-bold">Phone</span><br/>+256 773 505 795<br/>+256 754 913 092</p></div>
           <div><h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2"><Check className="w-4 h-4 text-orange-600" /> Certification</h3><div className="bg-slate-900 p-6 rounded-xl border border-slate-800"><div className="font-bold text-white mb-2">ERA Class B</div><div className="text-xs text-slate-500 uppercase">Permit Number</div><div className="text-sm font-mono text-orange-500">ERA/EIP/CLX/022/5516</div></div></div>
         </div>
