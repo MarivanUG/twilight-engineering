@@ -63,28 +63,25 @@ const DEFAULT_SLIDES = [
 ];
 
 const SERVICES_LIST = [
-  { icon: Zap, title: "Power Line Construction", desc: "Comprehensive surveying, designing, and construction of Low, Medium, and High Voltage networks. We handle commissioning, maintenance, and rehabilitation of distribution lines." },
-  { icon: Sun, title: "Solar Systems", desc: "Professional design and sizing of solar energy systems. We install solar water heaters, pumps, and automated street lighting for compounds and highways." },
-  { icon: Video, title: "CCTV & Security", desc: "Installation of advanced IP Cameras and security alarm systems. We offer offline and online viewing capabilities to secure homes and businesses." },
-  { icon: Droplet, title: "Civil & Water Works", desc: "General civil engineering services including plumbing infrastructure, water pump installations, and structural support for utility projects." },
-  { icon: Wind, title: "AC Systems", desc: "Complete HVAC solutions including design, installation, and maintenance of Air Conditioning systems for residential and commercial premises." },
-  { icon: Wrench, title: "Underground Cabling", desc: "Specialized trenching and cable laying for Medium Voltage lines, solar plants, and substation interconnections with high safety standards." },
+  { icon: Zap, title: "Power Line Construction", desc: "Comprehensive surveying, designing, and construction of Low, Medium, and High Voltage networks." },
+  { icon: Sun, title: "Solar Systems", desc: "Professional design and sizing of solar energy systems. We install solar water heaters, pumps, and automated street lighting." },
+  { icon: Video, title: "CCTV & Security", desc: "Installation of advanced IP Cameras and security alarm systems. We offer offline and online viewing capabilities." },
+  { icon: Droplet, title: "Civil & Water Works", desc: "General civil engineering services including plumbing infrastructure, water pump installations, and structural support." },
+  { icon: Wind, title: "AC Systems", desc: "Complete HVAC solutions including design, installation, and maintenance of Air Conditioning systems." },
+  { icon: Wrench, title: "Underground Cabling", desc: "Specialized trenching and cable laying for Medium Voltage lines, solar plants, and substation interconnections." },
   { icon: Battery, title: "Material Supply", desc: "Procurement and supply of genuine electrical materials including Transformers, Conductors, Switchgear, and Safety Equipment." },
-  { icon: Monitor, title: "Electrical Wiring", desc: "Certified industrial, commercial, and residential wiring services adhering to modern safety regulations and standards." },
+  { icon: Monitor, title: "Electrical Wiring", desc: "Certified industrial, commercial, and residential wiring services adhering to modern safety regulations." },
 ];
 
-const CLIENTS = [
-  "EACPL / Kayunga", "Sogea Satom", "Nile Heavy Engineering", "Bwiza Furniture World", "NWSC Mokono", "Tian Tang Group"
-];
+const CLIENTS = ["EACPL", "Sogea Satom", "Nile Heavy Engineering", "Bwiza Furniture World", "NWSC", "Tian Tang Group"];
 
 const DEFAULT_PROJECTS = [
-  { title: "MV & LV Network Construction", client: "EACPL / Kayunga", description: "Successful execution of 2.33km MV and 2.7km LV network construction. Scope included pole erection, dressing, stringing, and commissioning of a 200KVA Transformer.", imageUrl: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80", stats: ["33KV Line", "Concrete Poles", "Commissioned"] },
-  { title: "Katosi Water Treatment Plant", client: "Sogea Satom", description: "Replacement of 11KV/500KVA with 33KV/500KVA transformer. Included installation of Bulk Metering Units, 33KV Circuit Breakers, and complex underground cable works.", imageUrl: "https://images.unsplash.com/photo-1581094794329-cd1361ddee2d?auto=format&fit=crop&w=800&q=80", stats: ["500KVA Tx", "Industrial", "Cabling"] },
-  { title: "Bukinda Hydro Power Project", client: "Nile Heavy Engineering", description: "Construction of 33kV Transmission Line for power evacuation of 6.5 MW Bukinda Small Hydro Power Project. Installation of auto-reclosers and metering units.", imageUrl: "https://images.unsplash.com/photo-1544724569-5f546fd6dd2d?auto=format&fit=crop&w=800&q=80", stats: ["Hydro Power", "Rehabilitation", "HV"] }
+  { title: "MV & LV Network Construction", client: "EACPL / Kayunga", description: "Successful execution of 2.33km MV and 2.7km LV network construction.", imageUrl: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80", stats: ["33KV Line", "Concrete Poles"] },
+  { title: "Katosi Water Treatment Plant", client: "Sogea Satom", description: "Replacement of 11KV/500KVA with 33KV/500KVA transformer.", imageUrl: "https://images.unsplash.com/photo-1581094794329-cd1361ddee2d?auto=format&fit=crop&w=800&q=80", stats: ["500KVA Tx", "Industrial"] }
 ];
 
 const DEFAULT_PRODUCTS = [
-  { name: "50KVA Transformer", category: "Supplies", price: 0, description: "High quality distribution transformer for industrial use.", imageUrl: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=500&q=60" },
+  { name: "50KVA Transformer", category: "Supplies", price: 0, description: "High quality distribution transformer.", imageUrl: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=500&q=60" },
   { name: "Solar Street Light Kit", category: "Electronics", price: 0, description: "Complete automated solar lighting system.", imageUrl: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=500&q=60" }
 ];
 
@@ -92,15 +89,11 @@ const DEFAULT_PRODUCTS = [
 // 3. UTILS & HELPERS
 // =================================================================
 
-// Helper to ensure path is correct for local files and handles spaces
 const resolveImagePath = (url: string) => {
-  if (!url) return '/logo.svg'; // Default to the SVG requested
-  if (url.startsWith('http') || url.startsWith('data:')) return url; // External or Base64
-  
+  if (!url) return '/logo.svg'; 
+  if (url.startsWith('http') || url.startsWith('data:')) return url; 
   let cleanUrl = url.trim();
-  if (!cleanUrl.startsWith('/')) {
-    cleanUrl = '/' + cleanUrl;
-  }
+  if (!cleanUrl.startsWith('/')) cleanUrl = '/' + cleanUrl;
   return cleanUrl;
 };
 
@@ -124,9 +117,9 @@ const sendMessage = async (data: {name: string, email: string, message: string},
   return true;
 };
 
+// This function is explicitly used in the main App component's useEffect
 const updateMetaTags = (settings: AppSettings) => {
   if (settings.siteTitle) document.title = settings.siteTitle;
-  
   const iconHref = resolveImagePath(settings.faviconUrl || '/favicon.png');
   let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
   if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
@@ -485,11 +478,11 @@ const AdminContent = ({ products, projects, slides, messages, settings, addProdu
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 animate-fade-in">
       <div className="flex justify-between mb-8 pb-6 border-b"><h2>Admin Dashboard</h2><div className="flex gap-2">{['Store', 'Projects', 'Slides', 'Inbox', 'Settings'].map(t => <button key={t} onClick={() => setAdminTab(t.toLowerCase())} className={`px-4 py-2 rounded ${adminTab===t.toLowerCase()?'bg-orange-100':'bg-slate-50'}`}>{t}</button>)}<button onClick={() => setIsAdmin(false)} className="px-4 py-2 bg-red-50 text-red-600">Exit</button></div></div>
-      {adminTab === 'store' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Product</h3><form onSubmit={addProduct} className="space-y-4"><input name="name" required placeholder="Name" className="w-full p-2 border" /><input name="price" required placeholder="Price" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><p className="text-xs text-slate-400">Click icon to upload image & copy 'Direct Link'</p><select name="category" className="w-full p-2 border"><option>Supplies</option><option>Tools</option></select><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{products.map((p:any) => <tr key={p.id}><td>{p.name}</td><td><button onClick={() => deleteProduct(p.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
-      {adminTab === 'projects' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Project</h3><form onSubmit={addProject} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="client" placeholder="Client" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{projects.map((p:any) => <tr key={p.id}><td>{p.title}</td><td><button onClick={() => deleteProject(p.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
-      {adminTab === 'slides' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Slide</h3><form onSubmit={addSlide} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="subtitle" placeholder="Subtitle" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{slides.map((s:any) => <tr key={s.id}><td>{s.title}</td><td><button onClick={() => deleteSlide(s.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
-      {adminTab === 'inbox' && <div className="max-w-4xl mx-auto space-y-4">{messages.map((m:any) => <div key={m.id} className="p-4 border rounded"><div className="flex justify-between font-bold"><span>{m.name} ({m.email})</span><button onClick={() => deleteMessage(m.id)}><Trash2 className="w-4 h-4" /></button></div><p>{m.text}</p></div>)}</div>}
-      {adminTab === 'settings' && <div className="max-w-xl mx-auto"><form onSubmit={handleSave} className="space-y-6 bg-white p-8 shadow-xl"><h3>Settings</h3><input name="siteTitle" value={formSettings.siteTitle} onChange={handleChange} placeholder="Site Title" className="w-full p-3 border" /><input name="faviconUrl" value={formSettings.faviconUrl} onChange={handleChange} placeholder="/favicon.png or https://..." className="w-full p-3 border" /><input name="logoUrl" value={formSettings.logoUrl} onChange={handleChange} placeholder="/logo.png or https://..." className="w-full p-3 border" /><input name="footerLogoUrl" value={formSettings.footerLogoUrl} onChange={handleChange} placeholder="Footer Logo URL" className="w-full p-3 border bg-slate-50" /><input name="contactFormUrl" value={formSettings.contactFormUrl} onChange={handleChange} placeholder="Contact Form Endpoint (Formspree URL)" className="w-full p-3 border font-mono bg-slate-50" /><p className="text-xs text-slate-500">Sign up at formspree.io to get a URL for email notifications.</p><input name="adminPin" value={formSettings.adminPin} onChange={handleChange} placeholder="Admin PIN" className="w-full p-3 border" /><button className={`w-full text-white py-3 font-bold ${saveStatus === 'Saved!' ? 'bg-green-600' : 'bg-orange-600'}`}>{saveStatus}</button></form><br/><button onClick={loadDemoData} className="w-full bg-slate-200 py-3">Load Demo Data</button></div>}
+      {adminTab === 'store' && <div className="grid lg:grid-cols-3 gap-10"><div><h3><Plus className="inline w-5 h-5 mr-1"/> Add Product</h3><form onSubmit={addProduct} className="space-y-4"><input name="name" required placeholder="Name" className="w-full p-2 border" /><input name="price" required placeholder="Price" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><p className="text-xs text-slate-400">Click icon to upload image & copy 'Direct Link'</p><select name="category" className="w-full p-2 border"><option>Supplies</option><option>Tools</option></select><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{products.map((p:any) => <tr key={p.id}><td>{p.name}</td><td><button onClick={() => deleteProduct(p.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
+      {adminTab === 'projects' && <div className="grid lg:grid-cols-3 gap-10"><div><h3><Plus className="inline w-5 h-5 mr-1"/> Add Project</h3><form onSubmit={addProject} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="client" placeholder="Client" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{projects.map((p:any) => <tr key={p.id}><td>{p.title}</td><td><button onClick={() => deleteProject(p.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
+      {adminTab === 'slides' && <div className="grid lg:grid-cols-3 gap-10"><div><h3><Layout className="inline w-5 h-5 mr-1"/> Add Slide</h3><form onSubmit={addSlide} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="subtitle" placeholder="Subtitle" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{slides.map((s:any) => <tr key={s.id}><td>{s.title}</td><td><button onClick={() => deleteSlide(s.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
+      {adminTab === 'inbox' && <div className="max-w-4xl mx-auto space-y-4">{messages.map((m:any) => <div key={m.id} className="p-4 border rounded"><div className="flex justify-between font-bold"><span><User className="inline w-4 h-4 mr-1"/> {m.name} ({m.email})</span><button onClick={() => deleteMessage(m.id)}><Trash2 className="w-4 h-4" /></button></div><p>{m.text}</p></div>)}</div>}
+      {adminTab === 'settings' && <div className="max-w-xl mx-auto"><form onSubmit={handleSave} className="space-y-6 bg-white p-8 shadow-xl"><h3><Settings className="inline w-5 h-5 mr-1"/> Settings</h3><input name="siteTitle" value={formSettings.siteTitle} onChange={handleChange} placeholder="Site Title" className="w-full p-3 border" /><input name="faviconUrl" value={formSettings.faviconUrl} onChange={handleChange} placeholder="/favicon.png or https://..." className="w-full p-3 border" /><input name="logoUrl" value={formSettings.logoUrl} onChange={handleChange} placeholder="/logo.png or https://..." className="w-full p-3 border" /><input name="footerLogoUrl" value={formSettings.footerLogoUrl} onChange={handleChange} placeholder="Footer Logo URL" className="w-full p-3 border bg-slate-50" /><input name="contactFormUrl" value={formSettings.contactFormUrl} onChange={handleChange} placeholder="Contact Form Endpoint (Formspree URL)" className="w-full p-3 border font-mono bg-slate-50" /><p className="text-xs text-slate-500">Sign up at formspree.io to get a URL for email notifications.</p><input name="adminPin" value={formSettings.adminPin} onChange={handleChange} placeholder="Admin PIN" className="w-full p-3 border" /><button className={`w-full text-white py-3 font-bold ${saveStatus === 'Saved!' ? 'bg-green-600' : 'bg-orange-600'}`}>{saveStatus}</button></form><br/><button onClick={loadDemoData} className="w-full bg-slate-200 py-3"><Briefcase className="inline w-4 h-4 mr-1"/> Load Demo Data</button></div>}
     </div>
   );
 };
@@ -517,7 +510,7 @@ export default function App() {
   // FIX: Default settings now include footerLogoUrl
   const [settings, setSettings] = useState<AppSettings>({ 
     logoUrl: '/logo.svg', 
-    footerLogoUrl: '/footer.svg', // Default empty, will fallback to logoUrl
+    footerLogoUrl: '/footer.svg', 
     adminPin: '1234', 
     companyPhone: '+256773505795', 
     companyEmail: 'info@twilighteng.com', 
@@ -609,7 +602,9 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-24">
           <div className="flex items-center gap-4 cursor-pointer" onClick={() => handleTabChange('home')}>
              {/* FIX: Smart path resolution ensures 'logo.svg' works */}
-             <img src={resolveImagePath(settings.logoUrl)} alt="Logo" className="h-16 w-auto" /> 
+             <img src={resolveImagePath(settings.logoUrl)} alt="Logo" className="h-16 w-auto" 
+                  onError={(e) => { e.currentTarget.src = '/logo.png'; }} 
+             /> 
           </div>
           <div className="hidden lg:flex items-center gap-8">{['Home', 'About', 'Services', 'Store', 'Projects', 'Contact'].map(item => (<button key={item} onClick={() => handleTabChange(item.toLowerCase())} className={`text-sm font-bold uppercase tracking-wider relative py-2 group ${activeTab === item.toLowerCase() ? 'text-orange-600' : 'text-slate-500 hover:text-slate-900'}`}>{item}<span className={`absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 transform transition-transform ${activeTab === item.toLowerCase() ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`}></span></button>))}{isAdmin && <button onClick={() => handleTabChange('admin')} className="text-xs font-bold uppercase text-white bg-red-500 px-4 py-2 rounded-full hover:bg-red-600">Admin</button>}</div>
           <div className="lg:hidden flex items-center gap-4"><button onClick={() => setIsCartOpen(true)} className="p-2 relative"><ShoppingCart className="w-6 h-6" />{cartItemCount > 0 && <span className="absolute top-0 right-0 w-4 h-4 bg-orange-600 text-white text-[10px] flex items-center justify-center rounded-full font-bold">{cartItemCount}</span>}</button><button className="p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>{isMenuOpen ? <X /> : <Menu />}</button></div>
