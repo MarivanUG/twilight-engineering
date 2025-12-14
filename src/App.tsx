@@ -3,8 +3,8 @@ import {
   Menu, X, Phone, Mail, MapPin, Zap, Video, 
   Sun, ShoppingCart, Lock, Trash2, 
   Plus, Check, ChevronRight, ChevronLeft, Facebook, Twitter, Instagram,
-  Anchor, Settings, Briefcase, 
-  Clock, Award, HardHat, Battery, Monitor, MessageCircle, Send, Layout, User,
+  Anchor, 
+  Clock, Award, HardHat, MessageCircle, Send,
   Droplet, Wind, Wrench
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
@@ -341,7 +341,7 @@ const AdminContent = ({ products, projects, slides, messages, settings, addProdu
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // FIX: Restored this state
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPinInput, setAdminPinInput] = useState('');
