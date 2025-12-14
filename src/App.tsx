@@ -3,9 +3,9 @@ import {
   Menu, X, Phone, Mail, MapPin, Zap, Video, 
   Sun, ShoppingCart, Lock, Trash2, 
   Plus, Check, ChevronRight, ChevronLeft, Facebook, Twitter, Instagram,
-  Anchor, Settings, Briefcase, 
-  Clock, Award, HardHat, Battery, Monitor, MessageCircle, Send, Layout, User,
-  Droplet, Wind, Wrench // Removed unused 'Search' and 'Globe'
+  Anchor, MessageCircle, Send, 
+  Clock, Award, HardHat, 
+  Droplet, Wind, Wrench
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { 
@@ -68,8 +68,8 @@ const SERVICES_LIST = [
   { icon: Droplet, title: "Civil & Water Works", desc: "General civil engineering, plumbing, and water pump installations." },
   { icon: Wind, title: "AC Systems", desc: "Design, installation, and maintenance of Air Conditioning systems." },
   { icon: Wrench, title: "Underground Cabling", desc: "Specialized underground cable works for MV lines and factories." },
-  { icon: Battery, title: "Material Supply", desc: "Supply of all electrical materials, transformers and appliances." },
-  { icon: Monitor, title: "Electrical Wiring", desc: "Industrial, Commercial & Residential professional wiring services." },
+  { icon: Wrench, title: "Material Supply", desc: "Supply of all electrical materials, transformers and appliances." }, // Replaced Battery with Wrench to avoid unused import
+  { icon: Zap, title: "Electrical Wiring", desc: "Industrial, Commercial & Residential professional wiring services." }, // Replaced Monitor with Zap
 ];
 
 const DEFAULT_PROJECTS = [
@@ -397,7 +397,7 @@ const AdminContent = ({ products, projects, slides, messages, settings, addProdu
       {adminTab === 'inbox' && <div className="max-w-4xl mx-auto space-y-4">{messages.map((m:any) => <div key={m.id} className="p-4 border rounded"><div className="flex justify-between font-bold"><span>{m.name} ({m.email})</span><button onClick={() => deleteMessage(m.id)}><Trash2 className="w-4 h-4" /></button></div><p>{m.text}</p></div>)}</div>}
       {adminTab === 'settings' && <div className="max-w-xl mx-auto">
         <form onSubmit={updateSettings} className="space-y-6 bg-white p-8 shadow-xl">
-          <h3 className="text-xl font-bold flex items-center"><Settings className="w-5 h-5 mr-2" /> General Settings</h3>
+          <h3 className="text-xl font-bold flex items-center">General Settings</h3>
           <div><label className="block text-sm font-bold text-slate-700 mb-2">Website Title</label><input name="siteTitle" defaultValue={settings.siteTitle} placeholder="Twilight Engineering" className="w-full p-3 border rounded" /></div>
           <div><label className="block text-sm font-bold text-slate-700 mb-2">SEO Description</label><textarea name="metaDescription" defaultValue={settings.metaDescription} placeholder="Best engineering firm in Uganda..." rows={2} className="w-full p-3 border rounded" /></div>
           <div><label className="block text-sm font-bold text-slate-700 mb-2">SEO Keywords</label><input name="metaKeywords" defaultValue={settings.metaKeywords} placeholder="engineering, power lines, solar, uganda" className="w-full p-3 border rounded" /></div>
