@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Menu, X, Phone, Mail, MapPin, Zap, Video, 
-  Sun, Wrench, ShoppingCart, Lock, Trash2, 
+  Sun, ShoppingCart, Lock, Trash2, 
   Plus, Check, ChevronRight, ChevronLeft, Facebook, Twitter, Instagram,
-  Droplet, Wind, Shield, Anchor, Settings, Image as ImageIcon, Briefcase, 
-  Clock, Award, HardHat, Battery, Monitor, MessageCircle, Send, Layout, User
+  Anchor, Settings, Briefcase, 
+  Clock, Award, HardHat, Battery, Monitor, MessageCircle, Send, Layout, User,
+  // FIX: Added missing icons causing the crash
+  Droplet, Wind, Wrench
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { 
   getFirestore, collection, addDoc, onSnapshot, 
-  deleteDoc, doc, query, serverTimestamp, orderBy, setDoc, updateDoc 
+  deleteDoc, doc, query, serverTimestamp, orderBy, setDoc 
 } from 'firebase/firestore';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
@@ -26,13 +28,11 @@ const userFirebaseConfig = {
   appId: "1:708368955194:web:53aff7d5abd5bcaa6ac203"
 };
 
-const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : userFirebaseConfig;
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(userFirebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Unique ID for your app's data storage
-const APP_COLLECTION_ID = 'twilight-production-v5-fixed'; 
+const APP_COLLECTION_ID = 'twilight-production-v6'; 
 
 // =================================================================
 // 2. DEFAULT DATA 
@@ -41,21 +41,21 @@ const APP_COLLECTION_ID = 'twilight-production-v5-fixed';
 const DEFAULT_SLIDES = [
   {
     id: 'd1',
-    image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1920&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1920&q=80",
     title: "POWERING THE NATION",
     subtitle: "Specialists in High Voltage Power Line Construction & Distribution.",
     cta: "Our Services"
   },
   {
     id: 'd2',
-    image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1920&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1920&q=80",
     title: "SUSTAINABLE ENERGY",
     subtitle: "Expert design and installation of Industrial & Domestic Solar Systems.",
     cta: "View Projects"
   },
   {
     id: 'd3',
-    image: "https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&w=1920&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&w=1920&q=80",
     title: "ADVANCED SECURITY",
     subtitle: "State-of-the-art CCTV, Access Control, and Surveillance Solutions.",
     cta: "Contact Us"
@@ -142,7 +142,6 @@ interface Message { id: string; name: string; email: string; text: string; creat
 // --- HERO SLIDER ---
 const HeroSlider = ({ setActiveTab, logoUrl, slides }: { setActiveTab: (tab: string) => void, logoUrl: string, slides: Slide[] }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  // Use DB slides if available, else Default
   const activeSlides = slides.length > 0 ? slides : DEFAULT_SLIDES;
 
   useEffect(() => {
@@ -160,7 +159,7 @@ const HeroSlider = ({ setActiveTab, logoUrl, slides }: { setActiveTab: (tab: str
       {activeSlides.map((slide, index) => (
         <div key={slide.id || index} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
           <div className="absolute inset-0 bg-cover bg-center transition-transform duration-[10000ms] ease-linear scale-110" 
-               style={{ backgroundImage: `url('${slide.imageUrl || (slide as any).image}')`, transform: index === currentSlide ? 'scale(100)' : 'scale(110)' }}></div>
+               style={{ backgroundImage: `url('${slide.imageUrl}')`, transform: index === currentSlide ? 'scale(100)' : 'scale(110)' }}></div>
           <div className="absolute inset-0 bg-slate-900/70"></div>
         </div>
       ))}
@@ -209,7 +208,7 @@ const HeroSlider = ({ setActiveTab, logoUrl, slides }: { setActiveTab: (tab: str
 // --- CHAT WIDGET ---
 const ChatWidget = ({ settings }: { settings: AppSettings }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [step, setStep] = useState('input'); // input, sending, success
+  const [step, setStep] = useState('input'); 
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -301,7 +300,6 @@ const ChatWidget = ({ settings }: { settings: AppSettings }) => {
 const HomeContent = ({ setActiveTab, logoUrl, slides, settings }: any) => (
   <div className="animate-fade-in">
     <HeroSlider setActiveTab={setActiveTab} logoUrl={logoUrl} slides={slides} />
-    {/* Expertise Summary */}
     <div className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-16">
@@ -326,7 +324,6 @@ const HomeContent = ({ setActiveTab, logoUrl, slides, settings }: any) => (
         </div>
       </div>
     </div>
-    {/* Why Choose Us */}
     <div className="py-20 bg-slate-900 text-white">
       <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
         <div>
@@ -665,15 +662,11 @@ const CartDrawer = ({ cart, removeFromCart, setIsCartOpen }: any) => {
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
-  // Auth & Admin
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPinInput, setAdminPinInput] = useState('');
   const [footerClickCount, setFooterClickCount] = useState(0);
   const [user, setUser] = useState<any>(null);
-
-  // Data
   const [products, setProducts] = useState<Product[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [slides, setSlides] = useState<Slide[]>([]);
@@ -715,6 +708,7 @@ export default function App() {
 
   const deleteItem = async (col: string, id: string) => { if(confirm("Delete item?")) await deleteDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', col, id)); };
   const addToCart = (p: Product) => { const pId = p.id || 'temp-'+Math.random(); setCart(prev => { const ex = prev.find(i => i.id === pId); return ex ? prev.map(i => i.id === pId ? { ...i, quantity: i.quantity + 1 } : i) : [...prev, { ...p, quantity: 1, id: pId }]; }); setIsCartOpen(true); };
+  const removeFromCart = (id: string) => setCart(prev => prev.filter(i => i.id !== id));
 
   const renderContent = () => {
     if (activeTab === 'admin' && !isAdmin) return <HomeContent setActiveTab={setActiveTab} logoUrl={settings.logoUrl} slides={slides} settings={settings} />;
@@ -762,12 +756,12 @@ export default function App() {
             <div className="text-center mb-8"><Lock className="w-10 h-10 mx-auto text-slate-900 mb-4" /><h3 className="text-2xl font-black text-slate-900 uppercase">System Access</h3></div>
             <form onSubmit={handleLogin} className="space-y-6">
               <input type="password" value={adminPinInput} onChange={(e) => setAdminPinInput(e.target.value)} className="w-full bg-slate-100 p-4 rounded-xl text-center text-3xl tracking-[0.5em] font-black outline-none focus:ring-2 focus:ring-orange-500" maxLength={4} placeholder="••••" autoFocus />
-              <button className="w-full bg-orange-600 text-white font-bold py-4 rounded-xl hover:bg-slate-900 transition-all shadow-lg">Unlock Dashboard</button>
+              <button className="w-full bg-orange-600 text-white font-bold py-4 rounded-xl hover:bg-orange-700 transition-all shadow-lg">Unlock Dashboard</button>
             </form>
           </div>
         </div>
       )}
-      {isCartOpen && <CartDrawer cart={cart} removeFromCart={(id) => setCart(prev => prev.filter(i => i.id !== id))} setIsCartOpen={setIsCartOpen} />}
+      {isCartOpen && <CartDrawer cart={cart} removeFromCart={removeFromCart} setIsCartOpen={setIsCartOpen} />}
     </div>
   );
 }
