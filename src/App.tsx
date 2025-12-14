@@ -3,9 +3,9 @@ import {
   Menu, X, Phone, Mail, MapPin, Zap, Video, 
   Sun, ShoppingCart, Lock, Trash2, 
   Plus, Check, ChevronRight, ChevronLeft, Facebook, Twitter, Instagram,
-  Anchor, MessageCircle, Send, 
-  Clock, Award, HardHat, 
-  Droplet, Wind, Wrench
+  Anchor, Settings, Briefcase, 
+  Clock, Award, HardHat, Battery, Monitor, MessageCircle, Send, Layout, User,
+  Droplet, Wind, Wrench, Building2, ExternalLink
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { 
@@ -68,8 +68,12 @@ const SERVICES_LIST = [
   { icon: Droplet, title: "Civil & Water Works", desc: "General civil engineering, plumbing, and water pump installations." },
   { icon: Wind, title: "AC Systems", desc: "Design, installation, and maintenance of Air Conditioning systems." },
   { icon: Wrench, title: "Underground Cabling", desc: "Specialized underground cable works for MV lines and factories." },
-  { icon: Wrench, title: "Material Supply", desc: "Supply of all electrical materials, transformers and appliances." }, // Replaced Battery with Wrench to avoid unused import
-  { icon: Zap, title: "Electrical Wiring", desc: "Industrial, Commercial & Residential professional wiring services." }, // Replaced Monitor with Zap
+  { icon: Battery, title: "Material Supply", desc: "Supply of all electrical materials, transformers and appliances." },
+  { icon: Monitor, title: "Electrical Wiring", desc: "Industrial, Commercial & Residential professional wiring services." },
+];
+
+const CLIENTS = [
+  "EACPL / Kayunga", "Sogea Satom", "Nile Heavy Engineering", "Bwiza Furniture World", "NWSC Mokono", "Tian Tang Group"
 ];
 
 const DEFAULT_PROJECTS = [
@@ -108,19 +112,16 @@ const sendMessage = async (data: {name: string, email: string, message: string},
 
 const updateMetaTags = (settings: AppSettings) => {
   if (settings.siteTitle) document.title = settings.siteTitle;
-  
   if (settings.faviconUrl) {
     let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
     if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
     link.href = settings.faviconUrl;
   }
-
   if (settings.metaDescription) {
     let meta = document.querySelector("meta[name='description']") as HTMLMetaElement;
     if (!meta) { meta = document.createElement('meta'); meta.name = 'description'; document.head.appendChild(meta); }
     meta.content = settings.metaDescription;
   }
-
   if (settings.metaKeywords) {
     let meta = document.querySelector("meta[name='keywords']") as HTMLMetaElement;
     if (!meta) { meta = document.createElement('meta'); meta.name = 'keywords'; document.head.appendChild(meta); }
@@ -173,7 +174,6 @@ const HeroSlider = ({ setActiveTab, logoUrl, slides }: any) => {
 
 const ServicesCarousel = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const scroll = () => {
       if (containerRef.current) {
@@ -210,6 +210,23 @@ const ServicesCarousel = () => {
     </div>
   );
 };
+
+const PartnersStrip = () => (
+  <div className="bg-slate-50 py-12 border-y border-slate-100 overflow-hidden">
+    <div className="max-w-7xl mx-auto px-4 mb-8 text-center">
+      <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Trusted by Industry Leaders</p>
+    </div>
+    <div className="relative flex overflow-x-hidden group">
+      <div className="flex animate-marquee whitespace-nowrap">
+        {[...CLIENTS, ...CLIENTS, ...CLIENTS].map((client, i) => (
+          <div key={i} className="mx-8 flex items-center gap-2 text-xl font-black text-slate-300 uppercase select-none hover:text-orange-500 transition-colors cursor-default">
+            <Building2 className="w-6 h-6" /> {client}
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 const ChatWidget = ({ settings }: { settings: AppSettings }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -298,9 +315,8 @@ const ContactContent = ({ settings }: { settings: AppSettings }) => {
 const HomeContent = ({ setActiveTab, logoUrl, slides, settings }: any) => (
   <div className="animate-fade-in">
     <HeroSlider setActiveTab={setActiveTab} logoUrl={logoUrl} slides={slides} />
-    {/* NEW Services Carousel */}
     <ServicesCarousel />
-    
+    <PartnersStrip />
     <div className="py-20 bg-slate-900 text-white">
       <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
         <div>
@@ -327,8 +343,8 @@ const HomeContent = ({ setActiveTab, logoUrl, slides, settings }: any) => (
 const AboutContent = () => (
   <div className="max-w-7xl mx-auto py-20 px-4 animate-fade-in">
     <div className="grid md:grid-cols-2 gap-16 items-start mb-20">
-      <div><h2 className="text-4xl font-bold text-slate-900 mb-6">Who We Are</h2><div className="w-24 h-1.5 bg-orange-600 mb-8 rounded-full"></div><p className="text-slate-600 text-lg leading-relaxed"><strong>Twilight Engineering Company Limited (TECL)</strong> is a premier engineering firm incorporated in 2019.</p></div>
-      <div className="space-y-8"><div className="bg-white p-8 rounded-2xl shadow-xl border-l-4 border-orange-600"><h3 className="text-2xl font-bold mb-4 text-slate-900 flex items-center gap-3"><Anchor className="text-orange-600" /> Mission</h3><p className="text-slate-600">To provide overall customer satisfaction.</p></div></div>
+      <div><h2 className="text-4xl font-bold text-slate-900 mb-6">Who We Are</h2><div className="w-24 h-1.5 bg-orange-600 mb-8 rounded-full"></div><p className="text-slate-600 text-lg leading-relaxed"><strong>Twilight Engineering Company Limited (TECL)</strong> is a premier engineering firm incorporated in 2019. We have grown our capacity to handle large-scale projects ranging from power line construction to advanced security system installations.</p></div>
+      <div className="space-y-8"><div className="bg-white p-8 rounded-2xl shadow-xl border-l-4 border-orange-600"><h3 className="text-2xl font-bold mb-4 text-slate-900 flex items-center gap-3"><Anchor className="text-orange-600" /> Mission</h3><p className="text-slate-600">To provide overall customer satisfaction through provisioning of quality engineering solutions.</p></div></div>
     </div>
   </div>
 );
@@ -391,27 +407,11 @@ const AdminContent = ({ products, projects, slides, messages, settings, addProdu
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 animate-fade-in">
       <div className="flex justify-between mb-8 pb-6 border-b"><h2>Admin Dashboard</h2><div className="flex gap-2">{['Store', 'Projects', 'Slides', 'Inbox', 'Settings'].map(t => <button key={t} onClick={() => setAdminTab(t.toLowerCase())} className={`px-4 py-2 rounded ${adminTab===t.toLowerCase()?'bg-orange-100':'bg-slate-50'}`}>{t}</button>)}<button onClick={() => setIsAdmin(false)} className="px-4 py-2 bg-red-50 text-red-600">Exit</button></div></div>
-      {adminTab === 'store' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Product</h3><form onSubmit={addProduct} className="space-y-4"><input name="name" required placeholder="Name" className="w-full p-2 border" /><input name="price" required placeholder="Price" className="w-full p-2 border" /><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border" /><select name="category" className="w-full p-2 border"><option>Supplies</option><option>Tools</option></select><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{products.map((p:any) => <tr key={p.id}><td>{p.name}</td><td><button onClick={() => deleteProduct(p.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
-      {adminTab === 'projects' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Project</h3><form onSubmit={addProject} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="client" placeholder="Client" className="w-full p-2 border" /><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border" /><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{projects.map((p:any) => <tr key={p.id}><td>{p.title}</td><td><button onClick={() => deleteProject(p.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
-      {adminTab === 'slides' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Slide</h3><form onSubmit={addSlide} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="subtitle" placeholder="Subtitle" className="w-full p-2 border" /><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border" /><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{slides.map((s:any) => <tr key={s.id}><td>{s.title}</td><td><button onClick={() => deleteSlide(s.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
+      {adminTab === 'store' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Product</h3><form onSubmit={addProduct} className="space-y-4"><input name="name" required placeholder="Name" className="w-full p-2 border" /><input name="price" required placeholder="Price" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><p className="text-xs text-slate-400">Click icon to upload image & copy 'Direct Link'</p><select name="category" className="w-full p-2 border"><option>Supplies</option><option>Tools</option></select><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{products.map((p:any) => <tr key={p.id}><td>{p.name}</td><td><button onClick={() => deleteProduct(p.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
+      {adminTab === 'projects' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Project</h3><form onSubmit={addProject} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="client" placeholder="Client" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{projects.map((p:any) => <tr key={p.id}><td>{p.title}</td><td><button onClick={() => deleteProject(p.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
+      {adminTab === 'slides' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Slide</h3><form onSubmit={addSlide} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="subtitle" placeholder="Subtitle" className="w-full p-2 border" /><div className="relative"><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border pr-8" /><a href="https://postimages.org/" target="_blank" className="absolute right-2 top-2 text-orange-600 hover:underline"><ExternalLink className="w-4 h-4"/></a></div><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{slides.map((s:any) => <tr key={s.id}><td>{s.title}</td><td><button onClick={() => deleteSlide(s.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
       {adminTab === 'inbox' && <div className="max-w-4xl mx-auto space-y-4">{messages.map((m:any) => <div key={m.id} className="p-4 border rounded"><div className="flex justify-between font-bold"><span>{m.name} ({m.email})</span><button onClick={() => deleteMessage(m.id)}><Trash2 className="w-4 h-4" /></button></div><p>{m.text}</p></div>)}</div>}
-      {adminTab === 'settings' && <div className="max-w-xl mx-auto">
-        <form onSubmit={updateSettings} className="space-y-6 bg-white p-8 shadow-xl">
-          <h3 className="text-xl font-bold flex items-center">General Settings</h3>
-          <div><label className="block text-sm font-bold text-slate-700 mb-2">Website Title</label><input name="siteTitle" defaultValue={settings.siteTitle} placeholder="Twilight Engineering" className="w-full p-3 border rounded" /></div>
-          <div><label className="block text-sm font-bold text-slate-700 mb-2">SEO Description</label><textarea name="metaDescription" defaultValue={settings.metaDescription} placeholder="Best engineering firm in Uganda..." rows={2} className="w-full p-3 border rounded" /></div>
-          <div><label className="block text-sm font-bold text-slate-700 mb-2">SEO Keywords</label><input name="metaKeywords" defaultValue={settings.metaKeywords} placeholder="engineering, power lines, solar, uganda" className="w-full p-3 border rounded" /></div>
-          <div><label className="block text-sm font-bold text-slate-700 mb-2">Favicon URL</label><input name="faviconUrl" defaultValue={settings.faviconUrl} placeholder="https://..." className="w-full p-3 border rounded" /></div>
-          <div><label className="block text-sm font-bold text-slate-700 mb-2">Logo URL</label><input name="logoUrl" defaultValue={settings.logoUrl} placeholder="https://..." className="w-full p-3 border rounded" /></div>
-          <div><label className="block text-sm font-bold text-slate-700 mb-2">Contact Form URL (Formspree)</label><input name="contactFormUrl" defaultValue={settings.contactFormUrl} placeholder="https://formspree.io/f/..." className="w-full p-3 border rounded font-mono bg-slate-50" /></div>
-          <div><label className="block text-sm font-bold text-slate-700 mb-2">Admin PIN</label><input name="adminPin" defaultValue={settings.adminPin} placeholder="1234" className="w-full p-3 border rounded tracking-widest" /></div>
-          <button className="w-full bg-orange-600 text-white py-3 font-bold rounded hover:bg-orange-700 transition">Save All Settings</button>
-        </form>
-        <div className="mt-8 bg-slate-100 p-6 rounded-xl border border-slate-200">
-           <h3 className="font-bold mb-4">Reset Data</h3>
-           <button onClick={loadDemoData} className="w-full bg-slate-300 py-3 rounded font-bold hover:bg-slate-400 transition">Load Demo Content</button>
-        </div>
-      </div>}
+      {adminTab === 'settings' && <div className="max-w-xl mx-auto"><form onSubmit={updateSettings} className="space-y-6 bg-white p-8 shadow-xl"><h3>Settings</h3><input name="siteTitle" defaultValue={settings.siteTitle} placeholder="Site Title" className="w-full p-3 border" /><input name="faviconUrl" defaultValue={settings.faviconUrl} placeholder="Favicon URL" className="w-full p-3 border" /><input name="logoUrl" defaultValue={settings.logoUrl} placeholder="Logo URL" className="w-full p-3 border" /><input name="contactFormUrl" defaultValue={settings.contactFormUrl} placeholder="Contact Form Endpoint (Formspree URL)" className="w-full p-3 border font-mono bg-slate-50" /><p className="text-xs text-slate-500">Sign up at formspree.io to get a URL for email notifications.</p><input name="adminPin" defaultValue={settings.adminPin} placeholder="Admin PIN" className="w-full p-3 border" /><button className="w-full bg-orange-600 text-white py-3 font-bold">Save Settings</button></form><br/><button onClick={loadDemoData} className="w-full bg-slate-200 py-3">Load Demo Data</button></div>}
     </div>
   );
 };
@@ -439,22 +439,42 @@ export default function App() {
 
   const cartItemCount = useMemo(() => cart.reduce((a, b) => a + b.quantity, 0), [cart]);
 
-  // --- DYNAMIC SEO EFFECT ---
-  useEffect(() => { updateMetaTags(settings); }, [settings]);
+  // --- HASH NAVIGATION & SEO ---
+  useEffect(() => {
+    // 1. Meta Tags
+    if (settings.siteTitle) document.title = settings.siteTitle;
+    if (settings.faviconUrl) {
+      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+      if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+      link.href = settings.faviconUrl;
+    }
+    // 2. Hash Nav: Listen for hash changes
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && ['home', 'about', 'services', 'projects', 'store', 'contact'].includes(hash)) {
+        setActiveTab(hash);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    // Initial check
+    handleHashChange();
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [settings]);
+
+  // Update URL hash when tab changes (unless admin)
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    if (tab !== 'admin') window.location.hash = tab;
+  };
 
   useEffect(() => { signInAnonymously(auth); onAuthStateChanged(auth, (u) => setUser(u)); }, []);
 
   useEffect(() => {
     if (!user) return;
-    const qProd = query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'products'), orderBy('createdAt', 'desc'));
-    const qProj = query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'projects'), orderBy('createdAt', 'desc'));
-    const qSlides = query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), orderBy('createdAt', 'desc'));
-    const qMsgs = query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'messages'), orderBy('createdAt', 'desc'));
-    
-    const unsubProd = onSnapshot(qProd, (s) => setProducts(s.docs.map(d => ({ id: d.id, ...d.data() } as Product))));
-    const unsubProj = onSnapshot(qProj, (s) => setProjects(s.docs.map(d => ({ id: d.id, ...d.data() } as Project))));
-    const unsubSlides = onSnapshot(qSlides, (s) => setSlides(s.docs.map(d => ({ id: d.id, ...d.data() } as Slide))));
-    const unsubMsgs = onSnapshot(qMsgs, (s) => setMessages(s.docs.map(d => ({ id: d.id, ...d.data() } as Message))));
+    const unsubProd = onSnapshot(query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'products'), orderBy('createdAt', 'desc')), (s) => setProducts(s.docs.map(d => ({ id: d.id, ...d.data() } as Product))));
+    const unsubProj = onSnapshot(query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'projects'), orderBy('createdAt', 'desc')), (s) => setProjects(s.docs.map(d => ({ id: d.id, ...d.data() } as Project))));
+    const unsubSlides = onSnapshot(query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), orderBy('createdAt', 'desc')), (s) => setSlides(s.docs.map(d => ({ id: d.id, ...d.data() } as Slide))));
+    const unsubMsgs = onSnapshot(query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'messages'), orderBy('createdAt', 'desc')), (s) => setMessages(s.docs.map(d => ({ id: d.id, ...d.data() } as Message))));
     const unsubSettings = onSnapshot(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', 'settings'), (doc) => { if (doc.exists()) setSettings(doc.data() as AppSettings); });
     return () => { unsubProd(); unsubProj(); unsubSlides(); unsubMsgs(); unsubSettings(); };
   }, [user]);
@@ -474,16 +494,16 @@ export default function App() {
   const removeFromCart = (id: string) => setCart(prev => prev.filter(i => i.id !== id));
 
   const renderContent = () => {
-    if (activeTab === 'admin' && !isAdmin) return <HomeContent setActiveTab={setActiveTab} logoUrl={settings.logoUrl} slides={slides} settings={settings} />;
+    if (activeTab === 'admin' && !isAdmin) return <HomeContent setActiveTab={handleTabChange} logoUrl={settings.logoUrl} slides={slides} settings={settings} />;
     switch (activeTab) {
-      case 'home': return <HomeContent setActiveTab={setActiveTab} logoUrl={settings.logoUrl} slides={slides} settings={settings} />;
+      case 'home': return <HomeContent setActiveTab={handleTabChange} logoUrl={settings.logoUrl} slides={slides} settings={settings} />;
       case 'about': return <AboutContent />;
       case 'services': return <ServicesContent />;
       case 'projects': return <ProjectsContent projects={projects} />;
       case 'store': return <StoreContent products={products} addToCart={addToCart} setIsCartOpen={setIsCartOpen} cartItemCount={cartItemCount} />;
       case 'contact': return <ContactContent settings={settings} />;
       case 'admin': return <AdminContent products={products} projects={projects} slides={slides} messages={messages} settings={settings} addProduct={addProduct} deleteProduct={(id: string) => deleteItem('products', id)} addProject={addProject} deleteProject={(id: string) => deleteItem('projects', id)} addSlide={addSlide} deleteSlide={(id: string) => deleteItem('slides', id)} deleteMessage={(id: string) => deleteItem('messages', id)} updateSettings={updateSettings} loadDemoData={loadDemoData} setIsAdmin={setIsAdmin} />;
-      default: return <HomeContent setActiveTab={setActiveTab} logoUrl={settings.logoUrl} slides={slides} settings={settings} />;
+      default: return <HomeContent setActiveTab={handleTabChange} logoUrl={settings.logoUrl} slides={slides} settings={settings} />;
     }
   };
 
@@ -491,14 +511,14 @@ export default function App() {
     <div className="min-h-screen bg-white font-sans text-slate-800">
       <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-24">
-          <div className="flex items-center gap-4 cursor-pointer" onClick={() => setActiveTab('home')}>
+          <div className="flex items-center gap-4 cursor-pointer" onClick={() => handleTabChange('home')}>
              {settings.logoUrl ? <img src={settings.logoUrl} alt="Logo" className="h-12 w-auto" /> : <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center text-white font-black text-2xl">TE</div>}
             <div className="hidden sm:block"><div className="font-black text-xl text-slate-900 leading-none">TWILIGHT</div><div className="font-bold text-sm text-orange-600 tracking-widest uppercase">Engineering</div></div>
           </div>
-          <div className="hidden lg:flex items-center gap-8">{['Home', 'About', 'Services', 'Store', 'Projects', 'Contact'].map(item => (<button key={item} onClick={() => setActiveTab(item.toLowerCase())} className={`text-sm font-bold uppercase tracking-wider relative py-2 group ${activeTab === item.toLowerCase() ? 'text-orange-600' : 'text-slate-500 hover:text-slate-900'}`}>{item}<span className={`absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 transform transition-transform ${activeTab === item.toLowerCase() ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`}></span></button>))}{isAdmin && <button onClick={() => setActiveTab('admin')} className="text-xs font-bold uppercase text-white bg-red-500 px-4 py-2 rounded-full hover:bg-red-600">Admin</button>}</div>
+          <div className="hidden lg:flex items-center gap-8">{['Home', 'About', 'Services', 'Store', 'Projects', 'Contact'].map(item => (<button key={item} onClick={() => handleTabChange(item.toLowerCase())} className={`text-sm font-bold uppercase tracking-wider relative py-2 group ${activeTab === item.toLowerCase() ? 'text-orange-600' : 'text-slate-500 hover:text-slate-900'}`}>{item}<span className={`absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 transform transition-transform ${activeTab === item.toLowerCase() ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`}></span></button>))}{isAdmin && <button onClick={() => handleTabChange('admin')} className="text-xs font-bold uppercase text-white bg-red-500 px-4 py-2 rounded-full hover:bg-red-600">Admin</button>}</div>
           <div className="lg:hidden flex items-center gap-4"><button onClick={() => setIsCartOpen(true)} className="p-2 relative"><ShoppingCart className="w-6 h-6" />{cartItemCount > 0 && <span className="absolute top-0 right-0 w-4 h-4 bg-orange-600 text-white text-[10px] flex items-center justify-center rounded-full font-bold">{cartItemCount}</span>}</button><button className="p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>{isMenuOpen ? <X /> : <Menu />}</button></div>
         </div>
-        {isMenuOpen && <div className="lg:hidden bg-white border-t border-slate-100 absolute w-full shadow-2xl z-50">{['Home', 'About', 'Services', 'Store', 'Projects', 'Contact'].map(item => (<button key={item} onClick={() => { setActiveTab(item.toLowerCase()); setIsMenuOpen(false); }} className="block w-full text-left px-6 py-4 font-bold text-slate-600 hover:bg-orange-50 hover:text-orange-600 border-b border-slate-50">{item}</button>))}{isAdmin && <button onClick={() => {setActiveTab('admin'); setIsMenuOpen(false)}} className="block w-full text-left px-6 py-4 font-bold text-red-600 bg-red-50">Admin</button>}</div>}
+        {isMenuOpen && <div className="lg:hidden bg-white border-t border-slate-100 absolute w-full shadow-2xl z-50">{['Home', 'About', 'Services', 'Store', 'Projects', 'Contact'].map(item => (<button key={item} onClick={() => { handleTabChange(item.toLowerCase()); setIsMenuOpen(false); }} className="block w-full text-left px-6 py-4 font-bold text-slate-600 hover:bg-orange-50 hover:text-orange-600 border-b border-slate-50">{item}</button>))}{isAdmin && <button onClick={() => {handleTabChange('admin'); setIsMenuOpen(false)}} className="block w-full text-left px-6 py-4 font-bold text-red-600 bg-red-50">Admin</button>}</div>}
       </nav>
       <main>{renderContent()}</main>
       <footer className="bg-slate-950 text-slate-400 py-16 px-4 mt-auto border-t border-slate-900">
