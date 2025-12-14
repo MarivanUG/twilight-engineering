@@ -5,7 +5,7 @@ import {
   Plus, Check, ChevronRight, ChevronLeft, Facebook, Twitter, Instagram,
   Anchor, Settings, Briefcase, 
   Clock, Award, HardHat, Battery, Monitor, MessageCircle, Send, Layout, User,
-  Droplet, Wind, Wrench, Globe
+  Droplet, Wind, Wrench // Removed unused 'Globe'
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { 
@@ -139,8 +139,8 @@ interface AppSettings {
   adminPin: string; 
   companyPhone: string; 
   companyEmail: string;
-  siteTitle: string;    // New Field
-  faviconUrl: string;   // New Field
+  siteTitle: string;    
+  faviconUrl: string;   
 }
 interface Message { id: string; name: string; email: string; text: string; createdAt: any; read: boolean; }
 
@@ -167,7 +167,6 @@ const HeroSlider = ({ setActiveTab, logoUrl, slides }: { setActiveTab: (tab: str
     <div className="relative bg-slate-900 text-white min-h-[90vh] flex items-center justify-center overflow-hidden">
       {activeSlides.map((slide, index) => (
         <div key={slide.id || index} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-          {/* Ensure background image covers and is centered */}
           <div className="absolute inset-0 bg-cover bg-center transition-transform duration-[10000ms] ease-linear scale-110" 
                style={{ backgroundImage: `url('${slide.imageUrl}')`, transform: index === currentSlide ? 'scale(100)' : 'scale(110)' }}></div>
           <div className="absolute inset-0 bg-slate-900/70"></div>
