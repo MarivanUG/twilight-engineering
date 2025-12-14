@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Menu, X, Phone, Mail, MapPin, Zap, Video, 
   Sun, ShoppingCart, Lock, Trash2, 
   Plus, Check, ChevronRight, ChevronLeft, Facebook, Twitter, Instagram,
-  Anchor, 
-  Clock, Award, HardHat, MessageCircle, Send,
-  Droplet, Wind, Wrench
+  Anchor, Settings, Briefcase, 
+  Clock, Award, HardHat, Battery, Monitor, MessageCircle, Send, Layout, User,
+  Droplet, Wind, Wrench, Search, Globe
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { 
@@ -34,7 +34,7 @@ const db = getFirestore(app);
 const APP_COLLECTION_ID = 'twilight-production-v8'; 
 
 // =================================================================
-// 2. TYPES & DATA
+// 2. DATA & TYPES
 // =================================================================
 
 interface AppSettings { 
@@ -44,7 +44,9 @@ interface AppSettings {
   companyEmail: string;
   siteTitle: string;    
   faviconUrl: string;
-  contactFormUrl: string; 
+  contactFormUrl: string;
+  metaDescription: string; // New SEO Field
+  metaKeywords: string;    // New SEO Field
 }
 
 interface Product { id?: string; name: string; category: string; price: number; description: string; imageUrl: string; }
@@ -59,6 +61,17 @@ const DEFAULT_SLIDES = [
   { id: 'd3', imageUrl: "https://images.unsplash.com/photo-1557597774-9d273605dfa9?q=80&w=1920&auto=format&fit=crop", title: "ADVANCED SECURITY", subtitle: "State-of-the-art CCTV, Access Control, and Surveillance Solutions.", cta: "Contact Us" }
 ];
 
+const SERVICES_LIST = [
+  { icon: Zap, title: "Power Line Construction", desc: "Surveying, designing, and construction of MV/HV networks and substations." },
+  { icon: Sun, title: "Solar Systems", desc: "Design and sizing of On-grid and Off-grid solar systems for home & industry." },
+  { icon: Video, title: "CCTV & Security", desc: "Installation of IP Cameras, alarms, and remote surveillance systems." },
+  { icon: Droplet, title: "Civil & Water Works", desc: "General civil engineering, plumbing, and water pump installations." },
+  { icon: Wind, title: "AC Systems", desc: "Design, installation, and maintenance of Air Conditioning systems." },
+  { icon: Wrench, title: "Underground Cabling", desc: "Specialized underground cable works for MV lines and factories." },
+  { icon: Battery, title: "Material Supply", desc: "Supply of all electrical materials, transformers and appliances." },
+  { icon: Monitor, title: "Electrical Wiring", desc: "Industrial, Commercial & Residential professional wiring services." },
+];
+
 const DEFAULT_PROJECTS = [
   { title: "MV & LV Network Construction", client: "EACPL / Kayunga", description: "Construction, testing, and commissioning of 33KV Line on concrete structures.", imageUrl: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80", stats: ["33KV Line", "Concrete Poles"] },
   { title: "Katosi Water Treatment Plant", client: "Sogea Satom", description: "Installation of 33KV/500KVA Transformer and Bulk Metering Units.", imageUrl: "https://images.unsplash.com/photo-1581094794329-cd1361ddee2d?auto=format&fit=crop&w=800&q=80", stats: ["500KVA Tx", "Industrial"] }
@@ -70,7 +83,7 @@ const DEFAULT_PRODUCTS = [
 ];
 
 // =================================================================
-// 3. UTILS
+// 3. UTILS & HELPERS
 // =================================================================
 
 const sendMessage = async (data: {name: string, email: string, message: string}, endpoint: string) => {
@@ -93,10 +106,37 @@ const sendMessage = async (data: {name: string, email: string, message: string},
   return true;
 };
 
+// SEO Helper
+const updateMetaTags = (settings: AppSettings) => {
+  if (settings.siteTitle) document.title = settings.siteTitle;
+  
+  // Favicon
+  if (settings.faviconUrl) {
+    let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+    if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+    link.href = settings.faviconUrl;
+  }
+
+  // Description
+  if (settings.metaDescription) {
+    let meta = document.querySelector("meta[name='description']") as HTMLMetaElement;
+    if (!meta) { meta = document.createElement('meta'); meta.name = 'description'; document.head.appendChild(meta); }
+    meta.content = settings.metaDescription;
+  }
+
+  // Keywords
+  if (settings.metaKeywords) {
+    let meta = document.querySelector("meta[name='keywords']") as HTMLMetaElement;
+    if (!meta) { meta = document.createElement('meta'); meta.name = 'keywords'; document.head.appendChild(meta); }
+    meta.content = settings.metaKeywords;
+  }
+};
+
 // =================================================================
 // 4. COMPONENTS
 // =================================================================
 
+// --- HERO SLIDER ---
 const HeroSlider = ({ setActiveTab, logoUrl, slides }: any) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const activeSlides = slides.length > 0 ? slides : DEFAULT_SLIDES;
@@ -132,6 +172,62 @@ const HeroSlider = ({ setActiveTab, logoUrl, slides }: any) => {
       <button onClick={prevSlide} className="absolute left-4 z-30 p-3 bg-white/10 hover:bg-orange-600 rounded-full backdrop-blur-md transition group hidden md:block"><ChevronLeft className="w-8 h-8 text-white group-hover:scale-110 transition" /></button>
       <button onClick={nextSlide} className="absolute right-4 z-30 p-3 bg-white/10 hover:bg-orange-600 rounded-full backdrop-blur-md transition group hidden md:block"><ChevronRight className="w-8 h-8 text-white group-hover:scale-110 transition" /></button>
       <div className="absolute bottom-8 z-30 flex gap-3">{activeSlides.map((_: any, index: number) => (<button key={index} onClick={() => setCurrentSlide(index)} className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide ? 'bg-orange-600 w-8' : 'bg-white/50 hover:bg-white'}`} />))}</div>
+    </div>
+  );
+};
+
+// --- SERVICES CAROUSEL (NEW) ---
+const ServicesCarousel = () => {
+  const [scrollPos, setScrollPos] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Auto scroll
+  useEffect(() => {
+    const scroll = () => {
+      if (containerRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+        const isEnd = scrollLeft + clientWidth >= scrollWidth - 10;
+        const newPos = isEnd ? 0 : scrollLeft + 320; // 320px card width
+        containerRef.current.scrollTo({ left: newPos, behavior: 'smooth' });
+        setScrollPos(newPos);
+      }
+    };
+    const timer = setInterval(scroll, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="py-24 bg-white relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 mb-12 text-center">
+        <h2 className="text-4xl font-bold text-slate-900 mb-4">What We Do</h2>
+        <div className="w-20 h-1.5 bg-orange-600 mx-auto rounded-full"></div>
+        <p className="text-slate-500 mt-4 max-w-2xl mx-auto">Comprehensive engineering solutions tailored to your needs.</p>
+      </div>
+      
+      {/* Carousel Container */}
+      <div className="relative max-w-[1920px] mx-auto">
+        <div 
+          ref={containerRef}
+          className="flex gap-6 overflow-x-auto pb-12 px-4 md:px-12 snap-x snap-mandatory scrollbar-hide"
+          style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none' }}
+        >
+          {SERVICES_LIST.map((service, idx) => (
+            <div 
+              key={idx} 
+              className="flex-none w-80 md:w-96 bg-slate-50 border border-slate-100 p-8 rounded-2xl snap-center hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group cursor-default"
+            >
+              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-6 text-orange-600 shadow-md group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                <service.icon className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-orange-600 transition-colors">{service.title}</h3>
+              <p className="text-slate-600 leading-relaxed text-sm">{service.desc}</p>
+            </div>
+          ))}
+        </div>
+        {/* Gradients to fade edges */}
+        <div className="absolute top-0 bottom-0 left-0 w-12 md:w-32 bg-gradient-to-r from-white to-transparent pointer-events-none"></div>
+        <div className="absolute top-0 bottom-0 right-0 w-12 md:w-32 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
+      </div>
     </div>
   );
 };
@@ -223,19 +319,9 @@ const ContactContent = ({ settings }: { settings: AppSettings }) => {
 const HomeContent = ({ setActiveTab, logoUrl, slides, settings }: any) => (
   <div className="animate-fade-in">
     <HeroSlider setActiveTab={setActiveTab} logoUrl={logoUrl} slides={slides} />
-    <div className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-16"><h2 className="text-3xl font-bold text-slate-900">Our Expertise</h2><div className="w-20 h-1 bg-orange-600 mx-auto mt-4"></div></div>
-        <div className="grid md:grid-cols-3 gap-8">
-          {[{ icon: Zap, title: "Power & Transmission", desc: "Design and construction of MV/HV lines." }, { icon: Sun, title: "Renewable Energy", desc: "Expert solar sizing and installation." }, { icon: Video, title: "Security Systems", desc: "Advanced CCTV and surveillance setup." }].map((item, i) => (
-            <div key={i} className="bg-slate-50 p-8 rounded-2xl border border-slate-100 hover:shadow-xl transition group">
-              <div className="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center mb-6 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition"><item.icon className="w-8 h-8" /></div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3><p className="text-slate-600">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+    {/* NEW Services Carousel */}
+    <ServicesCarousel />
+    
     <div className="py-20 bg-slate-900 text-white">
       <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
         <div>
@@ -273,7 +359,7 @@ const ServicesContent = () => (
     <div className="max-w-7xl mx-auto">
       <div className="text-center mb-16"><h2 className="text-4xl font-bold text-slate-900 mb-4">Technical Services</h2></div>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {[{ icon: Zap, title: "Power Line Construction", desc: "Surveying, designing, and construction." }, { icon: Video, title: "CCTV & Security", desc: "Installation of IP Cameras." }, { icon: Sun, title: "Solar Systems", desc: "Design and sizing of On-grid and Off-grid." }, { icon: Droplet, title: "Civil & Water Works", desc: "General civil engineering." }, { icon: Wind, title: "AC Systems", desc: "HVAC Installation." }, { icon: Wrench, title: "Underground Cabling", desc: "Specialized cable works." }].map((s, i) => (
+        {SERVICES_LIST.map((s, i) => (
           <div key={i} className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition border border-slate-100"><div className="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center mb-6 text-orange-600"><s.icon className="w-7 h-7" /></div><h3 className="text-xl font-bold mb-3 text-slate-900">{s.title}</h3><p className="text-slate-600">{s.desc}</p></div>
         ))}
       </div>
@@ -330,7 +416,23 @@ const AdminContent = ({ products, projects, slides, messages, settings, addProdu
       {adminTab === 'projects' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Project</h3><form onSubmit={addProject} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="client" placeholder="Client" className="w-full p-2 border" /><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border" /><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{projects.map((p:any) => <tr key={p.id}><td>{p.title}</td><td><button onClick={() => deleteProject(p.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
       {adminTab === 'slides' && <div className="grid lg:grid-cols-3 gap-10"><div><h3>Add Slide</h3><form onSubmit={addSlide} className="space-y-4"><input name="title" required placeholder="Title" className="w-full p-2 border" /><input name="subtitle" placeholder="Subtitle" className="w-full p-2 border" /><input name="imageUrl" placeholder="Image URL" className="w-full p-2 border" /><button className="w-full bg-slate-900 text-white py-2">Add</button></form></div><div className="lg:col-span-2"><table><tbody>{slides.map((s:any) => <tr key={s.id}><td>{s.title}</td><td><button onClick={() => deleteSlide(s.id)}><Trash2 /></button></td></tr>)}</tbody></table></div></div>}
       {adminTab === 'inbox' && <div className="max-w-4xl mx-auto space-y-4">{messages.map((m:any) => <div key={m.id} className="p-4 border rounded"><div className="flex justify-between font-bold"><span>{m.name} ({m.email})</span><button onClick={() => deleteMessage(m.id)}><Trash2 className="w-4 h-4" /></button></div><p>{m.text}</p></div>)}</div>}
-      {adminTab === 'settings' && <div className="max-w-xl mx-auto"><form onSubmit={updateSettings} className="space-y-6 bg-white p-8 shadow-xl"><h3>Settings</h3><input name="siteTitle" defaultValue={settings.siteTitle} placeholder="Site Title" className="w-full p-3 border" /><input name="faviconUrl" defaultValue={settings.faviconUrl} placeholder="Favicon URL" className="w-full p-3 border" /><input name="logoUrl" defaultValue={settings.logoUrl} placeholder="Logo URL" className="w-full p-3 border" /><input name="contactFormUrl" defaultValue={settings.contactFormUrl} placeholder="Contact Form Endpoint (Formspree URL)" className="w-full p-3 border font-mono bg-slate-50" /><p className="text-xs text-slate-500">Sign up at formspree.io to get a URL for email notifications.</p><input name="adminPin" defaultValue={settings.adminPin} placeholder="Admin PIN" className="w-full p-3 border" /><button className="w-full bg-orange-600 text-white py-3 font-bold">Save Settings</button></form><br/><button onClick={loadDemoData} className="w-full bg-slate-200 py-3">Load Demo Data</button></div>}
+      {adminTab === 'settings' && <div className="max-w-xl mx-auto">
+        <form onSubmit={updateSettings} className="space-y-6 bg-white p-8 shadow-xl">
+          <h3 className="text-xl font-bold flex items-center"><Settings className="w-5 h-5 mr-2" /> General Settings</h3>
+          <div><label className="block text-sm font-bold text-slate-700 mb-2">Website Title</label><input name="siteTitle" defaultValue={settings.siteTitle} placeholder="Twilight Engineering" className="w-full p-3 border rounded" /></div>
+          <div><label className="block text-sm font-bold text-slate-700 mb-2">SEO Description</label><textarea name="metaDescription" defaultValue={settings.metaDescription} placeholder="Best engineering firm in Uganda..." rows={2} className="w-full p-3 border rounded" /></div>
+          <div><label className="block text-sm font-bold text-slate-700 mb-2">SEO Keywords</label><input name="metaKeywords" defaultValue={settings.metaKeywords} placeholder="engineering, power lines, solar, uganda" className="w-full p-3 border rounded" /></div>
+          <div><label className="block text-sm font-bold text-slate-700 mb-2">Favicon URL</label><input name="faviconUrl" defaultValue={settings.faviconUrl} placeholder="https://..." className="w-full p-3 border rounded" /></div>
+          <div><label className="block text-sm font-bold text-slate-700 mb-2">Logo URL</label><input name="logoUrl" defaultValue={settings.logoUrl} placeholder="https://..." className="w-full p-3 border rounded" /></div>
+          <div><label className="block text-sm font-bold text-slate-700 mb-2">Contact Form URL (Formspree)</label><input name="contactFormUrl" defaultValue={settings.contactFormUrl} placeholder="https://formspree.io/f/..." className="w-full p-3 border rounded font-mono bg-slate-50" /></div>
+          <div><label className="block text-sm font-bold text-slate-700 mb-2">Admin PIN</label><input name="adminPin" defaultValue={settings.adminPin} placeholder="1234" className="w-full p-3 border rounded tracking-widest" /></div>
+          <button className="w-full bg-orange-600 text-white py-3 font-bold rounded hover:bg-orange-700 transition">Save All Settings</button>
+        </form>
+        <div className="mt-8 bg-slate-100 p-6 rounded-xl border border-slate-200">
+           <h3 className="font-bold mb-4">Reset Data</h3>
+           <button onClick={loadDemoData} className="w-full bg-slate-300 py-3 rounded font-bold hover:bg-slate-400 transition">Load Demo Content</button>
+        </div>
+      </div>}
     </div>
   );
 };
@@ -354,27 +456,26 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [settings, setSettings] = useState<AppSettings>({ logoUrl: '', adminPin: '1234', companyPhone: '+256773505795', companyEmail: 'info@twilighteng.com', siteTitle: 'Twilight Engineering', faviconUrl: '', contactFormUrl: '' });
+  const [settings, setSettings] = useState<AppSettings>({ logoUrl: '', adminPin: '1234', companyPhone: '+256773505795', companyEmail: 'info@twilighteng.com', siteTitle: 'Twilight Engineering', faviconUrl: '', contactFormUrl: '', metaDescription: '', metaKeywords: '' });
 
   const cartItemCount = useMemo(() => cart.reduce((a, b) => a + b.quantity, 0), [cart]);
 
-  useEffect(() => {
-    if (settings.siteTitle) document.title = settings.siteTitle;
-    if (settings.faviconUrl) {
-      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
-      if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
-      link.href = settings.faviconUrl;
-    }
-  }, [settings]);
+  // --- DYNAMIC SEO EFFECT ---
+  useEffect(() => { updateMetaTags(settings); }, [settings]);
 
   useEffect(() => { signInAnonymously(auth); onAuthStateChanged(auth, (u) => setUser(u)); }, []);
 
   useEffect(() => {
     if (!user) return;
-    const unsubProd = onSnapshot(query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'products'), orderBy('createdAt', 'desc')), (s) => setProducts(s.docs.map(d => ({ id: d.id, ...d.data() } as Product))));
-    const unsubProj = onSnapshot(query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'projects'), orderBy('createdAt', 'desc')), (s) => setProjects(s.docs.map(d => ({ id: d.id, ...d.data() } as Project))));
-    const unsubSlides = onSnapshot(query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), orderBy('createdAt', 'desc')), (s) => setSlides(s.docs.map(d => ({ id: d.id, ...d.data() } as Slide))));
-    const unsubMsgs = onSnapshot(query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'messages'), orderBy('createdAt', 'desc')), (s) => setMessages(s.docs.map(d => ({ id: d.id, ...d.data() } as Message))));
+    const qProd = query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'products'), orderBy('createdAt', 'desc'));
+    const qProj = query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'projects'), orderBy('createdAt', 'desc'));
+    const qSlides = query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), orderBy('createdAt', 'desc'));
+    const qMsgs = query(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'messages'), orderBy('createdAt', 'desc'));
+    
+    const unsubProd = onSnapshot(qProd, (s) => setProducts(s.docs.map(d => ({ id: d.id, ...d.data() } as Product))));
+    const unsubProj = onSnapshot(qProj, (s) => setProjects(s.docs.map(d => ({ id: d.id, ...d.data() } as Project))));
+    const unsubSlides = onSnapshot(qSlides, (s) => setSlides(s.docs.map(d => ({ id: d.id, ...d.data() } as Slide))));
+    const unsubMsgs = onSnapshot(qMsgs, (s) => setMessages(s.docs.map(d => ({ id: d.id, ...d.data() } as Message))));
     const unsubSettings = onSnapshot(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', 'settings'), (doc) => { if (doc.exists()) setSettings(doc.data() as AppSettings); });
     return () => { unsubProd(); unsubProj(); unsubSlides(); unsubMsgs(); unsubSettings(); };
   }, [user]);
@@ -387,7 +488,7 @@ export default function App() {
   const addProject = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'projects'), { title: fd.get('title'), client: fd.get('client'), description: fd.get('description'), imageUrl: fd.get('imageUrl'), stats: (fd.get('stats') as string).split(','), createdAt: serverTimestamp() }); (e.target as HTMLFormElement).reset(); alert("Added"); };
   const addSlide = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), { title: fd.get('title'), subtitle: fd.get('subtitle'), cta: fd.get('cta'), imageUrl: fd.get('imageUrl'), createdAt: serverTimestamp() }); (e.target as HTMLFormElement).reset(); alert("Added"); };
   const deleteItem = async (col: string, id: string) => { if(confirm("Delete?")) await deleteDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', col, id)); };
-  const updateSettings = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await setDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', 'settings'), { logoUrl: fd.get('logoUrl'), adminPin: fd.get('adminPin'), companyPhone: '+256773505795', siteTitle: fd.get('siteTitle'), faviconUrl: fd.get('faviconUrl'), contactFormUrl: fd.get('contactFormUrl') }, { merge: true }); alert("Saved"); };
+  const updateSettings = async (e: React.FormEvent) => { e.preventDefault(); const fd = new FormData(e.target as HTMLFormElement); await setDoc(doc(db, 'artifacts', APP_COLLECTION_ID, 'public', 'settings'), { logoUrl: fd.get('logoUrl'), adminPin: fd.get('adminPin'), companyPhone: '+256773505795', siteTitle: fd.get('siteTitle'), faviconUrl: fd.get('faviconUrl'), contactFormUrl: fd.get('contactFormUrl'), metaDescription: fd.get('metaDescription'), metaKeywords: fd.get('metaKeywords') }, { merge: true }); alert("Saved"); };
   const loadDemoData = async () => { if(!confirm("Load demo?")) return; await Promise.all([...DEFAULT_PRODUCTS.map(p => addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'products'), {...p, createdAt: serverTimestamp()})), ...DEFAULT_PROJECTS.map(p => addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'projects'), {...p, createdAt: serverTimestamp()})), ...DEFAULT_SLIDES.map(s => addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'slides'), {...s, createdAt: serverTimestamp()}))]); alert("Loaded!"); };
 
   const addToCart = (p: Product) => { const pId = p.id || 't-'+Math.random(); setCart(prev => { const ex = prev.find(i => i.id === pId); return ex ? prev.map(i => i.id === pId ? {...i, quantity: i.quantity + 1} : i) : [...prev, {...p, quantity: 1, id: pId}]; }); setIsCartOpen(true); };
