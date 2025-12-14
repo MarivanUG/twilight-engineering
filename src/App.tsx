@@ -5,7 +5,7 @@ import {
   Plus, Check, ChevronRight, ChevronLeft, Facebook, Twitter, Instagram,
   Anchor, Settings, Briefcase, 
   Clock, Award, HardHat, Battery, Monitor, MessageCircle, Send, Layout, User,
-  Droplet, Wind, Wrench // FIX: Removed unused 'Globe' import
+  Droplet, Wind, Wrench
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { 
@@ -44,10 +44,9 @@ interface AppSettings {
   companyEmail: string;
   siteTitle: string;    
   faviconUrl: string;
-  contactFormUrl: string; // New field for Formspree/Email endpoint
+  contactFormUrl: string; 
 }
 
-// ... keeping other interfaces same
 interface Product { id?: string; name: string; category: string; price: number; description: string; imageUrl: string; }
 interface Project { id?: string; title: string; client: string; description: string; imageUrl: string; stats: string[]; }
 interface Slide { id?: string; title: string; subtitle: string; imageUrl: string; cta: string; }
@@ -74,16 +73,13 @@ const DEFAULT_PRODUCTS = [
 // 3. UTILS
 // =================================================================
 
-// Function to handle email sending (Formspree) + Database Backup
 const sendMessage = async (data: {name: string, email: string, message: string}, endpoint: string) => {
-  // 1. Save to Firebase (Backup)
   try {
     await addDoc(collection(db, 'artifacts', APP_COLLECTION_ID, 'public', 'messages'), {
       name: data.name, email: data.email, text: data.message, createdAt: serverTimestamp(), read: false
     });
   } catch (err) { console.error("Firebase save failed", err); }
 
-  // 2. Send to Email via Formspree (if configured)
   if (endpoint && endpoint.startsWith('http')) {
     try {
       const response = await fetch(endpoint, {
@@ -110,6 +106,9 @@ const HeroSlider = ({ setActiveTab, logoUrl, slides }: any) => {
     return () => clearInterval(timer);
   }, [activeSlides.length]);
 
+  const prevSlide = () => setCurrentSlide((prev: number) => (prev - 1 + activeSlides.length) % activeSlides.length);
+  const nextSlide = () => setCurrentSlide((prev: number) => (prev + 1) % activeSlides.length);
+
   return (
     <div className="relative bg-slate-900 text-white min-h-[90vh] flex items-center justify-center overflow-hidden">
       {activeSlides.map((slide: any, index: number) => (
@@ -130,6 +129,8 @@ const HeroSlider = ({ setActiveTab, logoUrl, slides }: any) => {
           <button onClick={() => setActiveTab('contact')} className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-lg font-bold transition transform hover:-translate-y-1">Contact Us</button>
         </div>
       </div>
+      <button onClick={prevSlide} className="absolute left-4 z-30 p-3 bg-white/10 hover:bg-orange-600 rounded-full backdrop-blur-md transition group hidden md:block"><ChevronLeft className="w-8 h-8 text-white group-hover:scale-110 transition" /></button>
+      <button onClick={nextSlide} className="absolute right-4 z-30 p-3 bg-white/10 hover:bg-orange-600 rounded-full backdrop-blur-md transition group hidden md:block"><ChevronRight className="w-8 h-8 text-white group-hover:scale-110 transition" /></button>
       <div className="absolute bottom-8 z-30 flex gap-3">{activeSlides.map((_: any, index: number) => (<button key={index} onClick={() => setCurrentSlide(index)} className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide ? 'bg-orange-600 w-8' : 'bg-white/50 hover:bg-white'}`} />))}</div>
     </div>
   );
@@ -219,8 +220,6 @@ const ContactContent = ({ settings }: { settings: AppSettings }) => {
   );
 };
 
-// ... (HomeContent, AboutContent, ServicesContent, ProjectsContent, StoreContent, CartDrawer components remain largely the same, included below for completeness)
-
 const HomeContent = ({ setActiveTab, logoUrl, slides, settings }: any) => (
   <div className="animate-fade-in">
     <HeroSlider setActiveTab={setActiveTab} logoUrl={logoUrl} slides={slides} />
@@ -234,6 +233,25 @@ const HomeContent = ({ setActiveTab, logoUrl, slides, settings }: any) => (
               <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3><p className="text-slate-600">{item.desc}</p>
             </div>
           ))}
+        </div>
+      </div>
+    </div>
+    <div className="py-20 bg-slate-900 text-white">
+      <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
+        <div>
+          <h2 className="text-3xl font-bold mb-6">Why Choose Twilight Engineering?</h2>
+          <p className="text-slate-400 mb-8 text-lg">We adhere to strict safety standards and are committed to ensuring skills development and quality delivery.</p>
+          <div className="space-y-6">
+            <div className="flex items-start"><HardHat className="w-6 h-6 text-orange-500 mr-4 mt-1" /><div><h4 className="font-bold text-lg">Safety First</h4><p className="text-slate-500 text-sm">Environmental Health & Safety is our priority.</p></div></div>
+            <div className="flex items-start"><Award className="w-6 h-6 text-orange-500 mr-4 mt-1" /><div><h4 className="font-bold text-lg">Certified Quality</h4><p className="text-slate-500 text-sm">ERA Class B Permit holders.</p></div></div>
+            <div className="flex items-start"><Clock className="w-6 h-6 text-orange-500 mr-4 mt-1" /><div><h4 className="font-bold text-lg">Timely Delivery</h4><p className="text-slate-500 text-sm">We value your time and adhere to strict timelines.</p></div></div>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 hover:border-orange-500 transition"><div className="text-4xl font-bold text-orange-500 mb-2">50+</div><div className="text-sm font-bold uppercase tracking-wide">Projects Done</div></div>
+          <div className="bg-slate-800 p-6 rounded-2xl mt-8 border border-slate-700 hover:border-orange-500 transition"><div className="text-4xl font-bold text-orange-500 mb-2">100%</div><div className="text-sm font-bold uppercase tracking-wide">Satisfaction</div></div>
+          <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 hover:border-orange-500 transition"><div className="text-4xl font-bold text-orange-500 mb-2">24/7</div><div className="text-sm font-bold uppercase tracking-wide">Support</div></div>
+          <div className="bg-slate-800 p-6 rounded-2xl mt-8 border border-slate-700 hover:border-orange-500 transition"><div className="text-4xl font-bold text-orange-500 mb-2">2019</div><div className="text-sm font-bold uppercase tracking-wide">Established</div></div>
         </div>
       </div>
     </div>
@@ -323,6 +341,7 @@ const AdminContent = ({ products, projects, slides, messages, settings, addProdu
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // FIX: Restored this state
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPinInput, setAdminPinInput] = useState('');
@@ -415,7 +434,7 @@ export default function App() {
           <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm relative"><button onClick={() => setShowAdminLogin(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><X /></button><div className="text-center mb-8"><Lock className="w-10 h-10 mx-auto text-slate-900 mb-4" /><h3 className="text-2xl font-black text-slate-900 uppercase">System Access</h3></div><form onSubmit={handleLogin} className="space-y-6"><input type="password" value={adminPinInput} onChange={(e) => setAdminPinInput(e.target.value)} className="w-full bg-slate-100 p-4 rounded-xl text-center text-3xl tracking-[0.5em] font-black outline-none focus:ring-2 focus:ring-orange-500" maxLength={4} placeholder="••••" autoFocus /><button className="w-full bg-orange-600 text-white font-bold py-4 rounded-xl hover:bg-orange-700 transition-all shadow-lg">Unlock Dashboard</button></form></div>
         </div>
       )}
-      {isCartOpen && <CartDrawer cart={cart} removeFromCart={(id: string) => setCart(prev => prev.filter(i => i.id !== id))} setIsCartOpen={setIsCartOpen} />}
+      {isCartOpen && <CartDrawer cart={cart} removeFromCart={removeFromCart} setIsCartOpen={setIsCartOpen} />}
     </div>
   );
 }
